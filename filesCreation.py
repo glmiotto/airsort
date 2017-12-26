@@ -25,7 +25,7 @@ def fatalitiesFile():
 			with open('dicFatalities.bin', 'wb') as dicDir:
 				for line in inputDir:
 					data = line.split('~')[22].strip('"')
-					ID = int(line.split('~')[0].strip('"'))
+					ID = line.split('~')[0].strip('"')
 					classification = 'NÃO'
 					if(data != '0'):
 						classification = 'SIM'
@@ -33,13 +33,14 @@ def fatalitiesFile():
 					PostingList[index].append(ID)
 				for data in Dic.keys():
 					index = Dic[data]
-					pickle.dump([data, outputDir.tell()], dicDir)
-					pickle.dump(set(PostingList[index]), outputDir)
+					PostingList[index] = set(PostingList[index])
+					pickle.dump([data, outputDir.tell(), len(PostingList[index])], dicDir)
+					pickle.dump(PostingList[index], outputDir)
 				info = 0
 				info = info.to_bytes(1, 'little')
 				dicDir.write(info)
 						
-	Data = 'NÃO'
+	'''Data = 'NÃO'
 	with open('dicFatalities.bin', 'rb') as f:
 		with open('fatalities.bin', 'rb') as f2:
 			try:
@@ -50,7 +51,7 @@ def fatalitiesFile():
 				f2.seek(data[1])
 				l = l.union(set(pickle.load(f2)))
 			except:
-				print('Not found in dictionary!')
+				print('Not found in dictionary!')'''
 
 def dayShiftFile():
 	Dic = {'MADRUGADA' : 0, 'MANHÃ' : 1, 'TARDE' : 2, 'NOITE' : 3}
@@ -61,7 +62,7 @@ def dayShiftFile():
 			with open('dicDayShift.bin', 'wb') as dicDir:
 				for line in inputDir:
 					data = line.split('~')[10].strip('"')
-					ID = int(line.split('~')[0].strip('"'))
+					ID = line.split('~')[0].strip('"')
 					hour = int(data[:2])
 					classification = 'NOITE'
 					if(hour < 6):
@@ -74,13 +75,14 @@ def dayShiftFile():
 					PostingList[index].append(ID)
 				for data in Dic.keys():
 					index = Dic[data]
-					pickle.dump([data, outputDir.tell()], dicDir)
-					pickle.dump(set(PostingList[index]), outputDir)
+					PostingList[index] = set(PostingList[index])
+					pickle.dump([data, outputDir.tell(), len(PostingList[index])], dicDir)
+					pickle.dump(PostingList[index], outputDir)
 				info = 0
 				info = info.to_bytes(1, 'little')
 				dicDir.write(info)
 						
-	Data = 'MANHÃ'
+	'''Data = 'MANHÃ'
 	with open('dicDayShift.bin', 'rb') as f:
 		with open('dayShift.bin', 'rb') as f2:
 			try:
@@ -92,7 +94,7 @@ def dayShiftFile():
 				l = l.union(set(pickle.load(f2)))
 				print(len(l))
 			except:
-				print('Not found in dictionary!')
+				print('Not found in dictionary!')'''
 					
 def createFile(inDir, outDir, dictionaryDir, number, search, unknow):
 	Dic = {}
@@ -104,7 +106,7 @@ def createFile(inDir, outDir, dictionaryDir, number, search, unknow):
 				i = 0
 				for line in inputDir:
 					data = line.split('~')[number].strip('"')
-					ID = int(line.split('~')[0].strip('"'))
+					ID = line.split('~')[0].strip('"')
 					if data == '###!' or data == '####':
 						data = '****'
 					if data not in Dic.keys():
@@ -114,19 +116,21 @@ def createFile(inDir, outDir, dictionaryDir, number, search, unknow):
 					index = Dic[data]
 					PostingList[index].append(ID)
 				if unknow != None:
-					pickle.dump([unknow, outputDir.tell()], dicDir)
+					PostingList[Dic[unknow]] = set(PostingList[Dic[unknow]])
+					pickle.dump([unknow, outputDir.tell(), len(PostingList[Dic[unknow]])], dicDir)
 					pickle.dump(PostingList[Dic[unknow]], outputDir)
 					del Dic[unknow]		
 				for data in Dic.keys():
 					index = Dic[data]
-					pickle.dump([data, outputDir.tell()], dicDir)
-					pickle.dump(set(PostingList[index]), outputDir)
+					PostingList[index] = set(PostingList[index])
+					pickle.dump([data, outputDir.tell(), len(PostingList[index])], dicDir)
+					pickle.dump(PostingList[index], outputDir)
 				info = 1
 				if unknow == None:
 					info = 0
 				info = info.to_bytes(1, 'little')
 				dicDir.write(info)
-	# Searching	in file			
+	'''# Searching	in file			
 	Data = search
 	with open(dictionaryDir, 'rb') as f:
 		with open(outDir, 'rb') as f2:
@@ -142,9 +146,9 @@ def createFile(inDir, outDir, dictionaryDir, number, search, unknow):
 				l = l.union(set(pickle.load(f2)))
 				print(len(l))
 			except:
-				print('Not found in dictionary!')
+				print('Not found in dictionary!')'''
 
-			
+'''			
 l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'invStatus.bin', 'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin']
 l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin']
 l3 = [1, 2, 5, 6, 8, 12, 3, 4, 5, 8, 10, 21]
@@ -162,4 +166,4 @@ for i in range(len(l1)):
 dayShiftFile()
 fatalitiesFile()
 
-				
+'''				
