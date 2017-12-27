@@ -65,7 +65,7 @@ def getIDs(dicFile, dataFile, data):
 	except:
 		return set()
 
-def addID(dicFile, dataFile, data, ID):
+def addID(dicFile, dataFile, data, ID, isNeutral):
 	try:
 		with open(dicFile, 'r+b') as dic:
 			with open(dataFile, 'r+b') as f:
@@ -109,6 +109,30 @@ def addID(dicFile, dataFile, data, ID):
 							return 
 					i += 1
 	except:
+		try:
+			with open(dicFile, 'r+b') as dic:
+				with open(dataFile, 'r+b') as f:
+					size = pickle.load(dic)
+					dic.seek(-size, 2)
+					neutralValue = pickle.load(dic)
+					dic.seek(-size, 2)
+					fsize = pickle.load(f)
+					f.seek(0, 2)
+					new = f.tell()//fsize
+					newD = dic.tell()//size
+					bytesToAdd = fsize - len(pickle.dumps([ID]+[-1]*30+[newD]))
+					pickle.dump([ID]+[-1]*30+[newD], f)
+					f.write(bytearray(bytesToAdd))
+					bytesToAdd = size - len(pickle.dumps([data, new, 1]))
+					pickle.dump([data, new, 1], dic)
+					dic.write(bytearray(bytesToAdd))
+					if(isNeutral):
+						neutralValue = newD
+					bytesToAdd = size - len(pickle.dumps(neutralValue))
+					pickle.dump(neutralValue, dic)
+					dic.write(bytearray(bytesToAdd))
+		except:
+			return
 		return
 
 def removeID(dicFile, dataFile, data, ID):
