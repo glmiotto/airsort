@@ -218,8 +218,24 @@ class Trie:
 				return nodeToRemove
 		except:
 			return -1
-				
-				
+	def inOrderRec(self, curNode, ID, f, size):
+		if curNode != None:
+			if curNode.getOco() != -1:
+				print(ID)
+			for i in range(10):
+				childNode = curNode.getChild(i)
+				if childNode == None:
+					continue
+				f.seek(childNode*size)
+				nextNode = pickle.load(f)
+				self.inOrderRec(nextNode, ID + str(i), f, size)
+	def inOrder(self, file):
+		with open(file, 'rb') as f:
+			size = pickle.load(f)
+			f.seek(1*size)
+			root = pickle.load(f)
+			self.inOrderRec(root, '', f, size)
+			
 
 def buildTrie():
 	Tree = Trie(2000)
@@ -249,7 +265,9 @@ def buildTrie():
 
 Tree = Trie(2000)
 
-buildTrie()
+#buildTrie()
+Tree.inOrder('Trie.bin')
+
 '''
 print(len(Tree.filterID('2009', 'Trie.bin')))
 

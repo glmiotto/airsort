@@ -14,6 +14,24 @@ def printall(file):
 				i += 1
 	except:
 		return
+	
+def showSorted(dicFile):
+	try:
+		l = []
+		with open(dicFile, 'rb') as dic:
+			size = pickle.load(dic)
+			i = 1
+			while True:
+				dic.seek(i*size)
+				d = pickle.load(dic)
+				l.append(d[0])
+				i += 1
+	except:
+		l.sort()
+		print('{}\n'.format(dicFile))
+		for item in l:
+			print(item)
+		return
 
 # Pega o Top 10 em % do dicionário(usando o 3 campo que é o tamanho de cada um)
 def getTop(dicFile):
@@ -276,7 +294,8 @@ def removeID(dicFile, dataFile, data, ID):
 	except:
 		return
 
-print(len(getIDs('dicUF.bin', 'UF.bin', 'RR')))
+showSorted('dicUF.bin')
+#print(len(getIDs('dicUF.bin', 'UF.bin', 'RR')))
 #printall('dicUF.bin')
 	
 '''
