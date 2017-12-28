@@ -1,6 +1,7 @@
 import pickle
 import copy
 
+# função auxiliar para imprimir todo o arquivo
 def printall(file):
 	try:
 		with open(file, 'rb') as f:
@@ -14,6 +15,7 @@ def printall(file):
 	except:
 		return
 
+# Pega o Top 10 em % do dicionário(usando o 3 campo que é o tamanho de cada um)
 def getTop(dicFile):
 	try:
 		with open(dicFile, 'rb') as dic:
@@ -34,37 +36,53 @@ def getTop(dicFile):
 				print('{:>30} = {:5.2f}%'.format(data[i][1], data[i][0]/qty*100))
 		else:
 			print('Arquivo sem dado')
-				
+
+# Pega todos ID's que pertencem ao dado
 def getIDs(dicFile, dataFile, data):
 	try:	
 		with open(dicFile, 'rb') as dic:
-			size = pickle.load(dic)
-			i = 1
-			while True:
-				dic.seek(size*i)
-				l = pickle.load(dic)
-				if(l[0] == data):
-					IDs = set()
-					with open(dataFile, 'rb') as f:
-						fsize = pickle.load(f)
+			with open(dataFile, 'rb') as f:
+				size = pickle.load(dic)
+				fsize = pickle.load(f)
+				IDs = set()
+				dic.seek(-size, 2) # ler último bloco
+				neutralValue = pickle.load(dic)
+				if(neutralValue != -1): # aqui pega os índices que são deconhecidos (potencialmente está incluso no dado)
+					dic.seek(neutralValue*size)
+					neutral = pickle.load(dic)
+					f.seek(neutral[1]*fsize)
+					neutral = pickle.load(f)
+					IDs = IDs.union(set(neutral[:29]))
+					while neutral[29] != -1:
+						print(neutral[29])
+						f.seek(neutral[29]*fsize)
+						neutral = pickle.load(f)
+						IDs = IDs.union(set(neutral[:29]))
+				i = 1
+				print(IDs)
+				while True:
+					dic.seek(size*i)
+					l = pickle.load(dic)
+					if(l[0] == data):
 						i = l[1]
 						f.seek(fsize*i)
 						l = pickle.load(f)
 						IDs = IDs.union(set(l[:29]))
-						print(l)
+						#print(l)
 						while(l[29] != -1):
 							i = l[29]
 							f.seek(fsize*i)
 							l = pickle.load(f)
 							IDs = IDs.union(set(l[:29]))
-							print(l)
+							#print(l)
 						if -1 in IDs:
 							IDs.remove(-1)
 						return IDs				
-				i += 1
+					i += 1
 	except:
 		return set()
 
+# adiciona um ID no arquivo de Posting
 def addID(dicFile, dataFile, data, ID, isNeutral):
 	try:
 		with open(dicFile, 'r+b') as dic:
@@ -74,7 +92,7 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 				while True:
 					dic.seek(size*i)
 					l = pickle.load(dic)
-					if(l[0] == data):
+					if(l[0] == data): # se encontrou no dicionário, acrescenta 1 nesse dado
 						dic.seek(size*i)
 						l[2] += 1
 						pickle.dump(l, dic)
@@ -84,21 +102,21 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 						l = pickle.load(f)
 						if(ID in l[:29]): # do not add equal ID's
 							return
-						while(l[29] != -1):
+						while(l[29] != -1): # vai até o final da lista
 							i = l[29]
 							f.seek(fsize*i)
 							l = pickle.load(f)
 							if(ID in l[:29]): # do not add equal ID's
 								return
-						if(l[28] == -1):
+						if(l[28] == -1): # adiciona, no final, se tem espaço
 							l[l.index(-1)] = ID
-							print(l)
+							#print(l)
 							f.seek(fsize*i)
 							pickle.dump(l, f)
 							return
-						else:
-							f.seek(0, 2)
-							l[29] = f.tell()//fsize
+						else: # cria um novo bloco e faz o antigo apontar para o novo no campo 29 e o novo apontar para o antigo, no campo 30
+							f.seek(0, 2) # vai para o final
+							l[29] = f.tell()//fsize # pega o bloco que se deve apontar n bytes/tamanho do bloco, divisão inteira
 							newList = [ID] + [-1]*31
 							newList[30] = i
 							bytesToAdd = fsize - len(pickle.dumps(newList))
@@ -110,6 +128,7 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 					i += 1
 	except:
 		try:
+			# cria um novo campo no dicionário, se não encontrar e adiciona no arquivo de Posts
 			with open(dicFile, 'r+b') as dic:
 				with open(dataFile, 'r+b') as f:
 					size = pickle.load(dic)
@@ -135,6 +154,7 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 			return
 		return
 
+# remove um ID no arquivo de Posting, difícil de explicar, mas tem muitos casos :/
 def removeID(dicFile, dataFile, data, ID):
 	try:
 		with open(dicFile, 'r+b') as dic:
@@ -256,6 +276,9 @@ def removeID(dicFile, dataFile, data, ID):
 	except:
 		return
 
+print(len(getIDs('dicUF.bin', 'UF.bin', 'RR')))
+#printall('dicUF.bin')
+	
 '''
 printall('type.bin')
 print('*'*1000)
