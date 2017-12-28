@@ -3,6 +3,7 @@ import copy
 
 # função auxiliar para imprimir todo o arquivo
 def printall(file):
+	a = 0
 	try:
 		with open(file, 'rb') as f:
 			size = pickle.load(f)
@@ -10,7 +11,7 @@ def printall(file):
 			while True:
 				f.seek(i*size)
 				l = pickle.load(f)
-				print(l)
+				print(i, l)
 				i += 1
 	except:
 		return
@@ -294,9 +295,38 @@ def removeID(dicFile, dataFile, data, ID):
 	except:
 		return
 
-showSorted('dicUF.bin')
+def addInMainFile(l, file):
+	try:
+		with open(file, 'r+b') as f:
+			size = pickle.load(f)
+			f.seek(0, 2)
+			pos = f.tell()//size
+			bytesToAdd = size - len(pickle.dumps(l))
+			pickle.dump(l, f)
+			f.write(bytearray(bytesToAdd))
+			return pos
+	except:
+		return -1
+
+def removeInMainFile(index, file):
+	try:
+		with open(file, 'r+b') as f:
+			size = pickle.load(f)
+			f.seek(-size, 2)
+			data = pickle.load(f)
+			f.seek(-size, 2)
+			f.truncate()
+			f.seek(size*index)
+			pickle.dump(data, f)
+			return data[0] # return the ID of this new position
+	except:
+		return -1
+		
+
+#showSorted('dicUF.bin')
 #print(len(getIDs('dicUF.bin', 'UF.bin', 'RR')))
-#printall('dicUF.bin')
+#removeInMainFile(6236, 'oco.bin')
+#printall('oco.bin')
 	
 '''
 printall('type.bin')

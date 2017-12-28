@@ -266,7 +266,7 @@ def buildTrie():
 Tree = Trie(2000)
 
 #buildTrie()
-Tree.inOrder('Trie.bin')
+#Tree.inOrder('Trie.bin')
 
 '''
 print(len(Tree.filterID('2009', 'Trie.bin')))

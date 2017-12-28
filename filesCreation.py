@@ -2,7 +2,7 @@ import pickle
 
 def createMainFiles(inputDir, infoDir, outputDir, blockSize):
 	with open(outputDir, 'wb') as f: 
-		with open(inputDir, 'r') as oco:
+		with open(inputDir, 'r', encoding='utf-8') as oco:
 			with open(infoDir, 'wb') as info:
 				l = [x.strip('\n').strip('"') for x in oco.readline().split('~')]
 				pickle.dump(l, info)
@@ -32,7 +32,6 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 	curIndex = []
 	toUpdate = []
 	indexSize = []
-	S = set() # isso é usado para remover ID's duplos que ocorrem no anv.bin
 	with open(inputDir, 'rb') as inDir:
 		with open(outputDir, 'r+b') as outDir:
 			# coloca no primeiro bloco do arquivo o tamanho de cada bloco de memória, para poder ter acesso direto
@@ -54,12 +53,6 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 						inDir.seek(block*size)
 						l = pickle.load(inDir)
 						ID = l[0]
-						if inputDir == 'anv.bin': # 
-							if ID not in S:
-								S.add(ID)
-							else: # Não adiciona o ID mais de uma vez
-								block += 1
-								continue
 						data = l[index]
 						# Tem um dado lá que tem três coisas que não dizem nada, achei melhor deixar todos iguais
 						if data == '###!' or data == '####':
@@ -269,7 +262,6 @@ def fatalitiesFile(index, blockSize, dicBlockSize):
 	curIndex = []
 	toUpdate = []
 	indexSize = []
-	S = set()
 	with open('anv.bin', 'rb') as inDir:
 		with open('fatalities.bin', 'r+b') as outDir:
 			bytesToAdd = blockSize - len(pickle.dumps(blockSize))
@@ -289,11 +281,6 @@ def fatalitiesFile(index, blockSize, dicBlockSize):
 						inDir.seek(block*size)
 						l = pickle.load(inDir)
 						ID = l[0]
-						if ID not in S:
-							S.add(ID)
-						else: # Don't add the same ID more than one time
-							block += 1
-							continue
 						data = l[index]
 						if data == '0':
 							data = 'NÃO'
