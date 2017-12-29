@@ -50,9 +50,8 @@ def getTop(dicFile):
 	except:
 		if(len(data) > 0):
 			data.sort(reverse=True)
-			l5 = [None, 'INDETERMINADA', 'NÃO IDENTIFICADA', '***', '****', None, 'INDETERMINADA', '***', '***', '***', '***', 'INDETERMINADO']
 			for i in range(min(10, len(data))):
-				if data[i][1] in l5:
+				if data[i][1] == '***':
 					data[i][1] = 'INDETERMINAÇÃO'
 				print('{:>30} = {:5.2f}%'.format(data[i][1], data[i][0]/qty*100))
 		else:
@@ -147,7 +146,6 @@ def addID(dicFile, dataFile, data, ID):
 					size = pickle.load(dic)
 					dic.seek(-size, 2)
 					neutralValue = pickle.load(dic)
-					dic.seek(-size, 2)
 					fsize = pickle.load(f)
 					f.seek(0, 2)
 					new = f.tell()//fsize
@@ -155,9 +153,12 @@ def addID(dicFile, dataFile, data, ID):
 					bytesToAdd = fsize - len(pickle.dumps([ID]+[-1]*30+[newD]))
 					pickle.dump([ID]+[-1]*30+[newD], f)
 					f.write(bytearray(bytesToAdd))
+					dic.seek(-size, 2)
 					bytesToAdd = size - len(pickle.dumps([data, new, 1]))
 					pickle.dump([data, new, 1], dic)
 					dic.write(bytearray(bytesToAdd))
+					if data == '***':
+						neutralValue = newD
 					bytesToAdd = size - len(pickle.dumps(neutralValue))
 					pickle.dump(neutralValue, dic)
 					dic.write(bytearray(bytesToAdd))

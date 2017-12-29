@@ -38,7 +38,7 @@ def getInfoID(ID, treeFile):
 
 def readNewData(treeFile):
 	Tree = Trie.Trie(2000)
-	Data = []
+	ocoList = []
 	info = []
 	with open('infoOco.bin', 'rb') as f:
 		info = pickle.load(f)
@@ -47,24 +47,19 @@ def readNewData(treeFile):
 	if ID.isdigit():
 		a = Tree.findID(ID, treeFile)
 	while not ID.isdigit() or a != -1:
-		print('Invalid ID')
+		print('ID Inválido')
 		ID = input('Insira o ID: ')
 	ocoList.append(ID)
-	d = {2 : 'INDETERMINADA', 5 : 'NÃO IDENTIFICADA', 6 : '***', 8 : '****'}
 	for i in range(1, len(info)):
 		print(info[i])
 		ans = input('1 - Dado conhecido\n2 - Dado desconhecido')
 		while not ans.isdigit() and int(ans) < 1 or int(ans) > 2:
 			ans = input('1 - Dado conhecido\n2 - Dado desconhecido\nSua Resposta: ')
 		if(ans == '2'):
-			if i in d.keys():
-				ocoList.append(d[i])
-			else:
-				ocoList.append('***')
+			ocoList.append('***')
 		else:
 			ans = input('Insira seu dado: ')
 			ocoList.append(ans)
-	d2 = {3 : 'INDETERMINADA', 4 : '***', 5 : '***', 8 : '***', 10 : '***', 21 : 'INDETERMINADO'}
 	anvList = []
 	while True:
 		ans = input('0 - Sair\n1 - Inserir Aeronave\nSua Resposta: ')
@@ -86,10 +81,7 @@ def readNewData(treeFile):
 				while not ans.isdigit() and (int(ans) < 1 or int(ans) > 2):
 					ans = input('1 - Dado conhecido\n2 - Dado desconhecido\nSua Resposta: ')
 				if(ans == '2'):
-					if i in d2.keys():
-						lis.append(d2[i])
-					else:
-						lis.append('***')
+					lis.append('***')
 				else:
 					ans = input('Insira seu dado: ')
 					lis.append(ans)
@@ -131,7 +123,7 @@ def updateList(l, infoFile):
 			ans = input('Deseja alterar qual informação? Digite o número correspondente: ')
 		if ans == '0':
 			break
-		newData = input('Digite o dado corrigido: ')
+		newData = input('Digite o dado corrigido: (*** se for indeterminado)')
 		s[int(ans)] = newData
 	return s
 	
@@ -195,6 +187,7 @@ def removeData(ID, treeFile):
 		l3 = [3, 4, 5, 8, 10, 21, 22]
 		for i in range (len(l1)):
 			supportFile.removeID(l2[i], l1[i], d[l3[i]], ID) # remove in Posting List
+	return 0
 			
 			
 def updateAnv(ID, registry, treeFile):
@@ -221,7 +214,8 @@ def updateAnv(ID, registry, treeFile):
 						# update PostingList
 						supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
 						supportFile.addID(l2[i], l1[i], s[l3[i]], ID)
-				break
+				return 0
+		return -1
 
 				
 
@@ -318,7 +312,6 @@ def menu():
 						while not ans.isdigit():
 							ans = input('O ID deve ser um número\nID: ')
 						data = getInfoID(ans, 'Trie.bin')
-						print(data)
 						if data == -1:
 							print('\nID não encontrado\n')
 						else:
@@ -376,8 +369,6 @@ def menu():
 							while not ans.isdigit() and (int(ans) < 0 or int(ans) > len(l)-1):
 								print('Insira um número entre 0 e {}'.format(len(l)-1))
 							ans = int(ans)
-							print(ans)
-							print(len(l), len(l1), len(l2))
 							data = input('Insira Informação sobre {} '.format(l[ans]))
 							if filterMore == 1:
 								filterMore = 2
@@ -405,8 +396,48 @@ def menu():
 							ans = input('Sua Escolha: ')
 						if ans == '0':
 							break
-			
-			
+		else:
+			while True:
+				ans = input('0 - Voltar para o menu principal\n1 - Adicionar novo ID\n2 - Atualizar dado de ID\n3 - Remover ID\nSua Escolha: ')
+				while not ans.isdigit() and (int(ans) < 0 or int(ans) > 3):
+					print('Insira um número entre 0 e 3')
+					ans = input('Sua Escolha: ')
+				if ans == '0':
+					break
+				elif ans == '1':
+					data = readNewData('Trie.bin')
+					addData(data[0][0], data[1:], 'Trie.bin')
+				elif ans == '2':
+					while True:
+						ans = input('0 - Voltar\n1 - Atualizar Ocorrência\n2 - Atualizar Aeronave\nSua Escolha: ')
+						while not ans.isdigit() and (int(ans) < 0 or int(ans) > 2):
+							print('Insira um número entre 0 e 2')
+							ans = input('Sua Escolha: ')
+						if ans == '0':
+							break
+						ID = input('ID: ')
+						while not ID.isdigit():
+							ID = input('O ID deve ser um número\nID: ')
+						data = getInfoID(ID, 'Trie.bin')
+						if data == -1:
+							print('\nID não existente\n')
+							continue
+						if ans == '1':
+							updateOco(ID, 'Trie.bin')
+						else:
+							for i in range(1, len(data)):
+								print(data[i][1])
+							registry = input('Escolha a Matricula da Aeronave dentre as de cima: ')
+							if(updateAnv(ID, registry, 'Trie.bin') == -1):
+								print('Matricula não existente')
+				else:
+					ID = input('ID: ')
+					while not ID.isdigit():
+						ID = input('O ID deve ser um número\nID: ')
+					if(removeData(ID, 'Trie.bin') == -1):
+						print('ID não existe')
+							
+							
 filesCreation.createFiles()
 Trie.buildTrie()
 

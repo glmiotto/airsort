@@ -9,15 +9,19 @@ def createMainFiles(inputDir, infoDir, outputDir, blockSize):
 			bytesToAdd = blockSize - len(pickle.dumps(blockSize))
 			pickle.dump(blockSize, f)
 			f.write(bytearray(bytesToAdd))
+			l5 = ['INDETERMINADA', 'NÃO IDENTIFICADA', '***', '****', 'INDETERMINADA', '***', '***', '***', '***', 'INDETERMINADO']
 			for line in oco:
 				l = [x.strip('\n').strip('"') for x in line.split('~')]
+				for i in range(1, len(l)):
+					if l[i] in l5:
+						l[i] = '***'
 				bytesToAdd = blockSize - len(pickle.dumps(l))
 				pickle.dump(l, f)
 				f.write(bytearray(bytesToAdd))
 				
 # cria os arquivos invertidos
 				
-def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize, dicBlockSize, unknow):
+def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize, dicBlockSize):
 	# cria os arquivos
 	with open(outputDir, 'wb') as outDir:
 		with open(dictionaryDir, 'wb') as dicDir:
@@ -124,7 +128,7 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 							# adiciona o número de ID's de cada dado do dicionário
 							dicDir.seek(i*dicBlockSize)
 							l = pickle.load(dicDir)
-							if(l[0] == unknow):
+							if(l[0] == '***'):
 								numberUnknow = i
 							dicDir.seek(i*dicBlockSize)
 							l.append(indexSize[Dic[l[0]]])
@@ -365,14 +369,13 @@ def createFiles():
 	l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'invStatus.bin', 'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin']
 	l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin']
 	l3 = [1, 2, 5, 6, 8, 12, 3, 4, 5, 8, 10, 21]
-	l5 = [None, 'INDETERMINADA', 'NÃO IDENTIFICADA', '***', '****', None, 'INDETERMINADA', '***', '***', '***', '***', 'INDETERMINADO']
 	for i in range(len(l1)):
 		inDir = None
 		if (i < 6):
 			inDir = 'oco.bin'
 		else:
 			inDir = 'anv.bin'
-		createInvertedIndexFile(inDir, l1[i], l2[i], l3[i], 1000, 100, l5[i])
+		createInvertedIndexFile(inDir, l1[i], l2[i], l3[i], 1000, 100)
 	dayShiftFile(10, 1000, 100)
 	fatalitiesFile(22, 1000, 100)
 
