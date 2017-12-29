@@ -29,7 +29,6 @@ def showSorted(dicFile):
 				i += 1
 	except:
 		l.sort()
-		print('{}\n'.format(dicFile))
 		for item in l:
 			print(item)
 		return
@@ -51,7 +50,10 @@ def getTop(dicFile):
 	except:
 		if(len(data) > 0):
 			data.sort(reverse=True)
+			l5 = [None, 'INDETERMINADA', 'NÃO IDENTIFICADA', '***', '****', None, 'INDETERMINADA', '***', '***', '***', '***', 'INDETERMINADO']
 			for i in range(min(10, len(data))):
+				if data[i][1] in l5:
+					data[i][1] = 'INDETERMINAÇÃO'
 				print('{:>30} = {:5.2f}%'.format(data[i][1], data[i][0]/qty*100))
 		else:
 			print('Arquivo sem dado')
