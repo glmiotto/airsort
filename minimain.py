@@ -82,15 +82,8 @@ def removeData(ID, treeFile):
 		d = pickle.load(f)
 		f.seek(-size, 2)
 		last = f.tell()//size
-	print(a.getOco())
 	toUpdate = supportFile.removeInMainFile(a.getOco(), 'oco.bin')
-	print(toUpdate == str(toUpdate))
-	print(toUpdate)
-	b = Tree.findID(toUpdate, 'Trie.bin')
-	print(b)
-	Tree.updateID(toUpdate, None, a.getOco(), last, treeFile, 2) # update oco position
-	b = Tree.findID(toUpdate, 'Trie.bin')
-	print(b)
+	Tree.updateID(toUpdate, a.getOco(), None, None, treeFile, 0) # update oco position
 	l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin']
 	l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin']
 	l3 = [1, 2, 5, 6, 8, 10, 12]
@@ -116,7 +109,7 @@ def removeData(ID, treeFile):
 filesCreation.createFiles()
 Trie.buildTrie()
 
-'''
+
 a = getInfoID('201106206058374', 'Trie.bin')
 #print(a)
 removeData('201106206058374', 'Trie.bin')
@@ -137,4 +130,4 @@ for i in range(len(l1)):
 			print('Erro')
 	else:
 		if '201106206058374' in supportFile.getIDs(l2[i], l1[i], b[0][l3[i]]):
-			print('Erro')'''
+			print('Erro')
