@@ -14,17 +14,17 @@ def sortedData(dicFile):
 def showRank(dicFile):
 	supportFile.getTop(dicFile)
 	
-def getInfoID(ID, ocoFile, anvFile, treeFile):
+def getInfoID(ID, treeFile):
 	Tree = Trie.Trie(2000)
 	a = Tree.findID(ID, treeFile)
 	if(a == -1):
 		return -1
 	b = []
-	with open(ocoFile, 'rb') as f:
+	with open('oco.bin', 'rb') as f:
 		size = pickle.load(f)
 		f.seek(a.getOco()*size)
 		b.append(pickle.load(f))
-	with open(anvFile, 'rb') as f:
+	with open('anv.bin', 'rb') as f:
 		size = pickle.load(f)
 		for anv in a.getAnv():
 			f.seek(anv*size)
@@ -48,13 +48,13 @@ def addData(ocoList, anvList, treeFile):
 		for i in range(7, len(l1)):
 			supportFile.addID(l2[i], l1[i], anv[l3[i]], anv[0])
 			
-def updateOco(ID, ocoList, treeFile, file): # file is oco.bin
+def updateOco(ID, ocoList, treeFile):
 	Tree = Trie.Trie(2000)
 	a = Tree.findID(ID, treeFile)
 	if(a == -1):
 		return -1
 	d = []
-	with open(file, 'rb') as f:
+	with open('oco.bin', 'rb') as f:
 		size = pickle.load(f)
 		f.seek(a.getOco()*size)
 		d = pickle.load(f)
@@ -68,33 +68,44 @@ def updateOco(ID, ocoList, treeFile, file): # file is oco.bin
 			supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
 			supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ID)
 	
-def removeData(ID, treeFile, ocoFile, anvFile):
+def removeData(ID, treeFile):
 	Tree = Trie.Trie(2000)
 	a = Tree.findID(ID, treeFile)
 	if(a == -1):
 		return -1
+	Tree.removeID(ID, treeFile)
 	d = []
-	with open(ocoFile, 'rb') as f:
+	last = 0
+	with open('oco.bin', 'rb') as f:
 		size = pickle.load(f)
 		f.seek(a.getOco()*size)
 		d = pickle.load(f)
-	toUpdate = removeInMainFile(a.getOco(), ocoFile)
-	Tree.updateID(toUpdate, a.getOco(), None, None, treeFile, -1) # update oco position
+		f.seek(-size, 2)
+		last = f.tell()//size
+	print(a.getOco())
+	toUpdate = supportFile.removeInMainFile(a.getOco(), 'oco.bin')
+	print(toUpdate == str(toUpdate))
+	print(toUpdate)
+	b = Tree.findID(toUpdate, 'Trie.bin')
+	print(b)
+	Tree.updateID(toUpdate, None, a.getOco(), last, treeFile, 2) # update oco position
+	b = Tree.findID(toUpdate, 'Trie.bin')
+	print(b)
 	l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin']
 	l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin']
 	l3 = [1, 2, 5, 6, 8, 10, 12]
-	for i in range(l1):
+	for i in range(len(l1)):
 		supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
 	for anv in a.getAnv():
 		d = []
 		last = 0
-		with open(anvFile, 'rb') as f:
+		with open('anv.bin', 'rb') as f:
 			size = pickle.load(f)
 			f.seek(anv*size)
 			d = pickle.load(f)
 			f.seek(-size, 2)
 			last = f.tell()//size
-		toUpdate = removeInMainFile(anv, anvFile)
+		toUpdate = supportFile.removeInMainFile(anv, 'anv.bin')
 		Tree.updateID(toUpdate, None, anv, last, treeFile, 2) # change anv
 		l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
 		l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
@@ -102,8 +113,28 @@ def removeData(ID, treeFile, ocoFile, anvFile):
 		for i in range (len(l1)):
 			supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
 
-#filesCreation.createFiles()
-#	Trie.buildTrie()
-a = getInfoID('201106206058374', 'oco.bin', 'anv.bin', 'Trie.bin')
-print(a)
+filesCreation.createFiles()
+Trie.buildTrie()
 
+'''
+a = getInfoID('201106206058374', 'Trie.bin')
+#print(a)
+removeData('201106206058374', 'Trie.bin')
+b = getInfoID('201106206058374', 'Trie.bin')
+#print(b)
+
+b = a[1:]
+a = a[0]
+		
+l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin', 'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
+l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+l3 = [1, 2, 5, 6, 8, 10, 12, 3, 4, 5, 8, 10, 21, 22]
+
+for i in range(len(l1)):
+	#print(i)
+	if i < 7:
+		if '201106206058374' in supportFile.getIDs(l2[i], l1[i], a[l3[i]]):
+			print('Erro')
+	else:
+		if '201106206058374' in supportFile.getIDs(l2[i], l1[i], b[0][l3[i]]):
+			print('Erro')'''

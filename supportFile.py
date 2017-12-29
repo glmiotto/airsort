@@ -73,12 +73,10 @@ def getIDs(dicFile, dataFile, data):
 					neutral = pickle.load(f)
 					IDs = IDs.union(set(neutral[:29]))
 					while neutral[29] != -1:
-						print(neutral[29])
 						f.seek(neutral[29]*fsize)
 						neutral = pickle.load(f)
 						IDs = IDs.union(set(neutral[:29]))
 				i = 1
-				print(IDs)
 				while True:
 					dic.seek(size*i)
 					l = pickle.load(dic)
@@ -87,13 +85,11 @@ def getIDs(dicFile, dataFile, data):
 						f.seek(fsize*i)
 						l = pickle.load(f)
 						IDs = IDs.union(set(l[:29]))
-						#print(l)
 						while(l[29] != -1):
 							i = l[29]
 							f.seek(fsize*i)
 							l = pickle.load(f)
 							IDs = IDs.union(set(l[:29]))
-							#print(l)
 						if -1 in IDs:
 							IDs.remove(-1)
 						return IDs				
@@ -102,7 +98,7 @@ def getIDs(dicFile, dataFile, data):
 		return set()
 
 # adiciona um ID no arquivo de Posting
-def addID(dicFile, dataFile, data, ID, isNeutral):
+def addID(dicFile, dataFile, data, ID):
 	try:
 		with open(dicFile, 'r+b') as dic:
 			with open(dataFile, 'r+b') as f:
@@ -119,14 +115,10 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 						i = l[1]
 						f.seek(fsize*i)
 						l = pickle.load(f)
-						if(ID in l[:29]): # do not add equal ID's
-							return
 						while(l[29] != -1): # vai até o final da lista
 							i = l[29]
 							f.seek(fsize*i)
 							l = pickle.load(f)
-							if(ID in l[:29]): # do not add equal ID's
-								return
 						if(l[28] == -1): # adiciona, no final, se tem espaço
 							l[l.index(-1)] = ID
 							#print(l)
@@ -164,8 +156,6 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 					bytesToAdd = size - len(pickle.dumps([data, new, 1]))
 					pickle.dump([data, new, 1], dic)
 					dic.write(bytearray(bytesToAdd))
-					if(isNeutral):
-						neutralValue = newD
 					bytesToAdd = size - len(pickle.dumps(neutralValue))
 					pickle.dump(neutralValue, dic)
 					dic.write(bytearray(bytesToAdd))
@@ -173,7 +163,7 @@ def addID(dicFile, dataFile, data, ID, isNeutral):
 			return
 		return
 
-# remove um ID no arquivo de Posting, difícil de explicar, mas tem muitos casos :/
+# remove um ID no arquivo de Posting
 def removeID(dicFile, dataFile, data, ID):
 	try:
 		with open(dicFile, 'r+b') as dic:
@@ -313,6 +303,10 @@ def removeInMainFile(index, file):
 		with open(file, 'r+b') as f:
 			size = pickle.load(f)
 			f.seek(-size, 2)
+			lastIndex = f.tell()//size
+			if lastIndex == index: # if removes the last
+				f.truncate()
+				return -1
 			data = pickle.load(f)
 			f.seek(-size, 2)
 			f.truncate()

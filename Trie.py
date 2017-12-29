@@ -171,53 +171,52 @@ class Trie:
 		except:
 			return set()
 	def removeID(self, ID, file): # Melhor verificar se existe antes de remover
-		try:
-			nodeToRemove = -1
-			with open(file, 'r+b') as f:
-				size = pickle.load(f)
-				pos = 1
-				f.seek(pos*size)
-				curNode = pickle.load(f) # root
-				for letter in ID:
-					number = int(letter)
-					childPos = curNode.getChild(number) 
-					if childPos == None:
-						return -1
-					f.seek(childPos*size)
-					curNode = pickle.load(f)
-					pos = childPos
-				if(curNode.getOco() == -1): # se ID não existe
+		nodeToRemove = -1
+		with open(file, 'r+b') as f:
+			size = pickle.load(f)
+			pos = 1
+			f.seek(pos*size)
+			curNode = pickle.load(f) # root
+			for letter in ID:
+				number = int(letter)
+				childPos = curNode.getChild(number) 
+				if childPos == None:
 					return -1
-				nodeToRemove = curNode
-				while True:
-					for i in range(10):
-						if curNode.getChild(i) != None:
-							break
-					# remove the current node(sem outro caminho)
-					parentInfo = curNode.getParent()
-					if parentInfo[0] == -1: #Can't delete root
-						break
-					f.seek(parentInfo[0]*size)
-					parent = pickle.load(f)
-					f.seek(parentInfo[0]*size)
-					parent.setChild(parentInfo[1], None)
-					pickle.dump(parent, f)
-					curNode = parent
-					f.seek(-size, 2) # colocar o último na posição do que foi removido
-					last = pickle.load(f)
-					f.seek(-size, 2)
-					f.truncate()
-					f.seek(size*pos) # posição para colocar o que era o último
-					pickle.dump(last, f)
-					parentInfo = last.getParent()
-					f.seek(parentInfo[0]*size)
-					parent = pickle.load(f)
-					f.seek(parentInfo[0]*size)
-					parent.setChild(parentInfo[1], pos)
-					pickle.dump(parent, f)
-				return nodeToRemove
-		except:
-			return -1
+				f.seek(childPos*size)
+				curNode = pickle.load(f)
+				pos = childPos
+			if(curNode.getOco() == -1): # se ID não existe
+				return -1
+			nodeToRemove = curNode
+			while True:
+				for i in range(10):
+					if curNode.getChild(i) != None:
+						return nodeToRemove
+				# remove the current node(sem outro caminho)
+				parentInfo = curNode.getParent()
+				if parentInfo[0] == -1: #Can't delete root
+					break
+				f.seek(parentInfo[0]*size)
+				parent = pickle.load(f)
+				f.seek(parentInfo[0]*size)
+				parent.setChild(parentInfo[1], None)
+				pickle.dump(parent, f)
+				curNode = parent
+				newPos = parentInfo[0]
+				f.seek(-size, 2) # colocar o último na posição do que foi removido
+				last = pickle.load(f)
+				f.seek(-size, 2)
+				f.truncate()
+				f.seek(size*pos) # posição para colocar o que era o último
+				pickle.dump(last, f)
+				parentInfo = last.getParent()
+				f.seek(parentInfo[0]*size)
+				parent = pickle.load(f)
+				f.seek(parentInfo[0]*size)
+				parent.setChild(parentInfo[1], pos)
+				pickle.dump(parent, f)
+				pos = newPos
+			return nodeToRemove
 	def inOrderRec(self, curNode, ID, f, size):
 		if curNode != None:
 			if curNode.getOco() != -1:
@@ -262,11 +261,20 @@ def buildTrie():
 				i += 1
 	except:
 		None
-
+'''
 Tree = Trie(2000)
 
-#buildTrie()
+buildTrie()
 #Tree.inOrder('Trie.bin')
+a = (Tree.filterID('', 'Trie.bin'))
+#print(Tree.findID('200803063018556', 'Trie.bin'))
+print(Tree.findID('201104061447671', 'Trie.bin'))
+Tree.removeID('201104061447671', 'Trie.bin')
+print(Tree.findID('201104061447671', 'Trie.bin'))
+#print(Tree.findID('200803063018556', 'Trie.bin'))
+b = Tree.filterID('', 'Trie.bin')
+
+print(a ^ b)'''
 
 '''
 print(len(Tree.filterID('2009', 'Trie.bin')))

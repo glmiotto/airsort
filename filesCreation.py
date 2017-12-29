@@ -377,5 +377,5 @@ def createFiles():
 	dayShiftFile(10, 1000, 100)
 	fatalitiesFile(22, 1000, 100)
 
-createFiles()
+#createFiles()
 
