@@ -365,7 +365,6 @@ def createFiles():
 	l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'invStatus.bin', 'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin']
 	l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin']
 	l3 = [1, 2, 5, 6, 8, 12, 3, 4, 5, 8, 10, 21]
-	#l4 = ['ACIDENTE', 'FALHA DO MOTOR EM VOO', 'NÃO IDENTIFICADA', 'SC', 'SJOG', 'ATIVA', 'HELICÓPTERO', 'AIRBUS INDUSTRIE', '56-C', 'QUADRIMOTOR', 'LEVE', 'SUBSTANCIAL']
 	l5 = [None, 'INDETERMINADA', 'NÃO IDENTIFICADA', '***', '****', None, 'INDETERMINADA', '***', '***', '***', '***', 'INDETERMINADO']
 	for i in range(len(l1)):
 		inDir = None

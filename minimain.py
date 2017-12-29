@@ -31,10 +31,74 @@ def getInfoID(ID, treeFile):
 			f.seek(anv*size)
 			b.append(pickle.load(f))
 	return b
+
+def readNewData(treeFile):
+	Tree = Trie.Trie(2000)
+	Data = []
+	info = []
+	with open('infoOco.bin', 'rb') as f:
+		info = pickle.load(f)
+	ID = input('Insira o ID: ')
+	a = 0
+	if ID.isdigit():
+		a = Tree.findID(ID, treeFile)
+	while not ID.isdigit() or a != -1:
+		print('Invalid ID')
+		ID = input('Insira o ID: ')
+	ocoList.append(ID)
+	d = {2 : 'INDETERMINADA', 5 : 'NÃO IDENTIFICADA', 6 : '***', 8 : '****'}
+	for i in range(1, len(info)):
+		print(info[i])
+		ans = input('1 - Dado conhecido\n2 - Dado desconhecido')
+		while not ans.isdigit() and int(ans) < 1 or int(ans) > 2:
+			ans = input('1 - Dado conhecido\n2 - Dado desconhecido\nSua Resposta: ')
+		if(ans == '2'):
+			if i in d.keys():
+				ocoList.append(d[i])
+			else:
+				ocoList.append('***')
+		else:
+			ans = input('Insira seu dado: ')
+			ocoList.append(ans)
+	d2 = {3 : 'INDETERMINADA', 4 : '***', 5 : '***', 8 : '***', 10 : '***', 21 : 'INDETERMINADO'}
+	anvList = []
+	while True:
+		ans = input('0 - Sair\n1 - Inserir Aeronave\nSua Resposta: ')
+		while not ans.isdigit() and int(ans) < 0 or int(ans) > 1:
+			ans = input('0 - Sair\n1 - Inserir Aeronave\nSua Resposta: ')
+		if ans == 0:
+			if len(anvList == 0):
+				anvList.append([])
+				break
+		else:
+			lis = []
+			infoAnv = []
+			with open('infoAnv.bin', 'rb') as f:
+				infoAnv = pickle.load(f)
+			lis[0].append(ID)
+			for i in range(1, len(infoAnv)):
+				print(infoAnv[i])
+				ans = input('1 - Dado conhecido\n2 - Dado desconhecido')
+				while not ans.isdigit() and int(ans) < 1 or int(ans) > 2:
+					ans = input('1 - Dado conhecido\n2 - Dado desconhecido\nSua Resposta: ')
+				if(ans == '2'):
+					if i in d2.keys():
+						lis.append(d2[i])
+					else:
+						lis.append('***')
+				else:
+					ans = input('Insira seu dado: ')
+					lis.append(ans)
+			anvList.append(lis)
+	return [ocoList, anvList]
 	
+		
 #ocoList no mesmo formato, anvList será uma lista de listas (pode ter + de um ID), ambos devem ter o mesmo ID
 def addData(ocoList, anvList, treeFile):
 	Tree = Trie.Trie(2000)
+	a = Tree.findID(ocoList[0], treeFile)
+	if(a != -1) # can't add an existing ID
+		return -1
 	pos = supportFile.addInMainFile(ocoList, 'oco.bin')
 	Tree.addID(ocoList[0], pos, treeFile)
 	for anv in anvList:
@@ -49,16 +113,36 @@ def addData(ocoList, anvList, treeFile):
 		for i in range(7, len(l1)):
 			supportFile.addID(l2[i], l1[i], anv[l3[i]], anv[0])
 			
-def updateOco(ID, ocoList, treeFile):
+def updateList(l, infoFile):
+	info = []
+	s = copy.deepcopy(l)
+	with open(infoFile, 'rb') as f:
+		info = pickle.load(f)
+	while True:
+		print('0 - Sair')
+		for i in range(1, len(info)):
+			print('{} - {}'.format(i, info[i]))
+		ans = input('Deseja alterar qual informação? Digite o número correspondente: ')
+		while not ans.isdigit() and (int(ans) < 0 or int(ans) > len(info)):
+			ans = input('Deseja alterar qual informação? Digite o número correspondente: ')
+		if ans == '0':
+			break
+		newData = input('Digite o dado corrigido: ')
+		s[int(ans)] = newData
+	return s
+	
+def updateOco(ID, treeFile):
 	Tree = Trie.Trie(2000)
 	a = Tree.findID(ID, treeFile)
 	if(a == -1):
 		return -1
 	d = []
+	ocoList = []
 	with open('oco.bin', 'r+b') as f:
 		size = pickle.load(f)
 		f.seek(a.getOco()*size)
 		d = pickle.load(f)
+		ocoList = updateList(d, 'infoOco.bin')
 		f.seek(a.getOco()*size)
 		pickle.dump(ocoList, f)
 	l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin']
@@ -108,25 +192,8 @@ def removeData(ID, treeFile):
 		for i in range (len(l1)):
 			supportFile.removeID(l2[i], l1[i], d[l3[i]], ID) # remove in Posting List
 			
-def updateAnvList(l):
-	info = []
-	s = copy.deepcopy(l)
-	with open('infoAnv.bin', 'rb') as f:
-		info = pickle.load(f)
-	while True:
-		print('0 - Sair')
-		for i in range(1, len(info)):
-			print('{} - {}'.format(i, ))
-		ans = input('Deseja alterar qual informação? Digite o número correspondente: ')
-		while not ans.isdigit() and (int(ans) < 0 or int(ans) > 23):
-			ans = input('Deseja alterar qual informação? Digite o número correspondente: ')
-		if ans == 0:
-			break
-		newData = input('Digite o dado corrigido: ')
-		s[ans] = newData
-	return s
 			
-def updateAnv(ID, treeFile):
+def updateAnv(ID, registry, treeFile):
 	Tree = Trie.Trie(2000)
 	a = Tree.findID(ID, treeFile)
 	if (a == -1):
@@ -136,11 +203,9 @@ def updateAnv(ID, treeFile):
 		for anv in a.getAnv():
 			f.seek(anv*size)
 			d = pickle.load(f)
-			print(d)
-			ans = input('Deseja alterar essa aeronave? (S/N)')
-			if ans[0] == 'S' or ans[0] == 's':
+			if d[1] == registry:
 				f.seek(anv*size)
-				s = updateAnvList(d)
+				s = updateList(d, 'infoAnv.bin')
 				pickle.dump(s, f)
 				if(s[0] != d[0]):
 					return -1 # ID must be the same
@@ -152,9 +217,7 @@ def updateAnv(ID, treeFile):
 						# update PostingList
 						supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
 						supportFile.addID(l2[i], l1[i], s[l3[i]], ID)
-				ans = input('Deseja alterar mais aeronaves com mesmo ID? (S/N)')
-				if ans[0] != 'S' and ans[0] != 's':
-					break
+				break
 
 #filesCreation.createFiles()
 #Trie.buildTrie()
