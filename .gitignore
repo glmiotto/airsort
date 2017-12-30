@@ -1,3 +1,5 @@
 *.csv
 *.bin
+*.in
+*.txt
 __pycache__/
