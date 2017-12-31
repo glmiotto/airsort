@@ -33,6 +33,22 @@ def showSorted(dicFile):
 			print(item)
 		return
 
+def returnSorted(dicFile):
+	try:
+		l = []
+		with open(dicFile, 'rb') as dic:
+			size = pickle.load(dic)
+			i = 1
+			while True:
+				dic.seek(i*size)
+				d = pickle.load(dic)
+				l.append(d[0])
+				i += 1
+	except:
+		l.sort()
+
+		return l
+
 # Pega o Top 10 em % do dicionário(usando o 3 campo que é o tamanho de cada um)
 def getTop(dicFile):
 	try:
