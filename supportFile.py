@@ -229,7 +229,7 @@ def removeID(dicFile, dataFile, data, ID):
 								f.seek(l[30]*fsize)
 								pointer = pickle.load(f)
 								pointer[29] = -1
-								f.seek(new[30]*fsize)
+								f.seek(l[30]*fsize)
 								pickle.dump(pointer, f)
 							f.seek(-fsize, 2) # trazer último para espaço vago
 							new = pickle.load(f)
