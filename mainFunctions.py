@@ -201,7 +201,8 @@ def removeData(ID, treeFile):
         f.seek(-size, 2)
         last = f.tell() // size
     toUpdate = supportFile.removeInMainFile(a.getOco(), 'oco.bin')  # ID to update position
-    Tree.updateID(toUpdate, a.getOco(), None, None, treeFile, 0)  # update oco position
+	if toUpdate != -1:
+    	Tree.updateID(toUpdate, a.getOco(), None, None, treeFile, 0)  # update oco position
     l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin']
     l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
           'dicInvStatus.bin']
@@ -227,7 +228,8 @@ def removeData(ID, treeFile):
             f.seek(-size, 2)
             last = f.tell() // size
         toUpdate = supportFile.removeInMainFile(anv, 'anv.bin')  # ID to update Position
-        Tree.updateID(toUpdate, None, anv, last, treeFile, 2)  # change anv
+		if toUpdate != -1:
+        	Tree.updateID(toUpdate, None, anv, last, treeFile, 2)  # change anv
         l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
               'fatalities.bin']
         l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin',
