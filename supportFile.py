@@ -180,7 +180,6 @@ def addID(dicFile, dataFile, data, ID):
 					dic.write(bytearray(bytesToAdd))
 		except:
 			return
-		return
 
 # remove um ID no arquivo de Posting
 def removeID(dicFile, dataFile, data, ID):
@@ -226,7 +225,13 @@ def removeID(dicFile, dataFile, data, ID):
 							l = pickle.load(f)
 						indexID = l.index(ID)
 						if indexID == 0 and l[indexID+1] == -1:
-							f.seek(-fsize, 2)
+							if(l[30] != -1): # não apontar para lista removida
+								f.seek(l[30]*fsize)
+								pointer = pickle.load(f)
+								pointer[29] = -1
+								f.seek(new[30]*fsize)
+								pickle.dump(pointer, f)
+							f.seek(-fsize, 2) # trazer último para espaço vago
 							new = pickle.load(f)
 							f.seek(-fsize, 2)
 							f.truncate()
@@ -241,7 +246,7 @@ def removeID(dicFile, dataFile, data, ID):
 								b = pickle.load(dic)
 								dic.seek(new[31]*size)
 								b[1] = j
-								pickle.dump(s, dic)
+								pickle.dump(b, dic)
 							#print(j)
 							f.seek(j*fsize)
 							#print(new)
