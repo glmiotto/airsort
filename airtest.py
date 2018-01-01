@@ -408,7 +408,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         ## TABLE AERONAVES
         # ID, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
-        listaIndicesAero = [0, 3,4,5,8, 10, 21,22]
+        listaIndicesAero = [0, 1,3,4,5,8, 10, 21,22]
 
         # clearzera
         self.tableResultadosAero.setSortingEnabled(False)  # evita bug esquisito que mantem row vazias se estiver sorted
@@ -427,14 +427,14 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 # continua insercao e catalogo
                 totalAero += 1
 
-                # ID, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
-                # listaIndicesAero = [0, 3, 4, 5, 8, 10, 21, 22]
+                # ID, Matricula, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
+                # listaIndicesAero = [0, 1,3, 4, 5, 8, 10, 21, 22]
 
                 # Rank aero
 
                 for i in range(6):
                     for j, item in enumerate(sortedOptionsAero[i]):
-                        if dados[1][listaIndicesAero[i + 1]] == item:
+                        if dados[1][listaIndicesAero[i + 2]] == item:
                             ranksAero[i][j] += 1
                             break
 
@@ -458,7 +458,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     for i, v in enumerate(self.menuVariablesAero):
 
                         if v.currentText().upper() not in ["QUALQUER"]:
-                            if dados[k][listaIndicesAero[i+1]] != v.currentText().upper():
+                            if dados[k][listaIndicesAero[i+2]] != v.currentText().upper():
                                 itemOk = False
                                 break
 
@@ -478,7 +478,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
                         for i in range(6):
                             for j, item in enumerate(sortedOptionsAero[i]):
-                                if dados[k][listaIndicesAero[i+1]] == item:
+                                if dados[k][listaIndicesAero[i+2]] == item:
                                     ranksAero[i][j] += 1
                                     break
 
@@ -607,7 +607,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         if dados != -1:  # se não retornou -1, então já existe.
 
-            yn = QtWidgets.QMessageBox.question(self, 'Deletar Ocorrência?',
+            yn = QtWidgets.QMessageBox.question(self, 'Deletar ocorrência?',
 
                                                 "Deseja deletar os dados de ocorrência e de aeronaves associados ao código ID informado?\n"
                                                 "(NOTA: Esta ação é irreversível! Os dados correntes serão permanentemente descartados)",
@@ -695,7 +695,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         if dados != -1:  # se não retornou -1, então já existe.
 
-            yn = QtWidgets.QMessageBox.question(self, 'Atualizar Dados?',
+            yn = QtWidgets.QMessageBox.question(self, 'Atualizar dados?',
                                                 "Já existe registro para o código identificador especificado.\n"
                                                 "Deseja sobrescrevê-lo com os novos dados informados?\n"
                                                 "(NOTA: Esta ação é irreversível! Os dados correntes serão permanentemente descartados)",
@@ -790,7 +790,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     achouIndex = i
 
             if achouIndex != -1: # achou aeronave com mesmo ID de ocorrencia e mesma matricula. Alterar?
-                yn = QtWidgets.QMessageBox.question(self, 'Atualizar Dados?',
+                yn = QtWidgets.QMessageBox.question(self, 'Atualizar dados?',
                                                     "Já existe registro para a ocorrência e aeronave com o código e matrícula especificados.\n"
                                                     "Deseja sobrescrevê-lo com os novos dados informados?\n"
                                                     "(NOTA: Esta ação é irreversível! Os dados correntes serão permanentemente descartados)",
@@ -851,7 +851,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Information)
 
-            msg.setWindowTitle("404 - ID Not Found")
+            msg.setWindowTitle("404 - ID not found")
             msg.setText("ID não encontrado.\n\nÉ necessário registrar a ocorrência antes de acrescentar dados de aeronaves envolvidas ao banco de dados.")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
 
