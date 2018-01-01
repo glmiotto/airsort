@@ -129,15 +129,15 @@ def addOcoData(ocoList, treeFile):
         return -1
     pos = supportFile.addInMainFile(ocoList, 'oco.bin')
     Tree.addID(ocoList[0], pos, treeFile)
-    for anv in anvList:
-        pos = supportFile.addInMainFile(anv, 'anv.bin')
-        Tree.updateID(anv[0], None, pos, None, treeFile, 0)  # append
+
     l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin',
           'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
     l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
           'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin',
           'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
     l3 = [1, 2, 5, 6, 8, 10, 12, 3, 4, 5, 8, 10, 21, 22]
+
+
     if ocoList[10][:2].isdigit():
         hour = int(ocoList[10][:2])
         ocoList[10] = 'NOITE'
@@ -149,6 +149,25 @@ def addOcoData(ocoList, treeFile):
             ocoList[10] = 'TARDE'
     for i in range(7):
         supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ocoList[0])
+
+#anvList list of lists
+def addAeroData(anvList, treeFile):
+
+
+    l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin',
+          'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
+    l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
+          'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin',
+          'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+    l3 = [1, 2, 5, 6, 8, 10, 12, 3, 4, 5, 8, 10, 21, 22]
+
+    Tree = Trie.Trie(2000)
+
+    for anv in anvList:
+        pos = supportFile.addInMainFile(anv, 'anv.bin')
+        print("pos",pos)
+        Tree.updateID(anv[0], None, pos, None, treeFile, 0)  # append
+
     for anv in anvList:
         if anv[22].isdigit():
             if anv[22] == '0':

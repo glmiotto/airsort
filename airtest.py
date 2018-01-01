@@ -654,7 +654,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 mainFunctions.updateOcoWithDataString(id,'Trie.bin', self.dadosOcoLista)
 
         else: # nao existe essa ID; fazer uma nova sem perguntas
-            registro = self.novaStringOcorrencia()
+            self.dadosOcoLista, self.dadosOcoStringFinal = self.novaStringOcorrencia()
+            mainFunctions.addOcoData(self.dadosOcoLista,'Trie.bin')
 
 
 
@@ -706,7 +707,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     mainFunctions.updateAnvWithDataString(id, matr, 'Trie.bin', self.dadosAeroLista)
 
             else: #nao achou esta aeronave registrada para este ID. Inserir sem perguntas
-                registro = self.novaStringAeronave()
+                self.dadosAeroLista, self.dadosAeroStringFinal = self.novaStringAeronave()
+                mainFunctions.addAeroData([self.dadosAeroLista], 'Trie.bin')
 
 
 
