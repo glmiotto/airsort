@@ -1,5 +1,8 @@
 import pickle
 import copy
+import locale
+# this reads the environment and inits the right locale
+locale.setlocale(locale.LC_ALL, "")
 
 # função auxiliar para imprimir todo o arquivo
 def printall(file):
@@ -28,7 +31,7 @@ def showSorted(dicFile):
 				l.append(d[0])
 				i += 1
 	except:
-		l.sort()
+		l.sort(key=locale.strxfrm)
 		for item in l:
 			print(item)
 		return
@@ -45,7 +48,7 @@ def returnSorted(dicFile):
 				l.append(d[0])
 				i += 1
 	except:
-		l.sort()
+		l.sort(key=locale.strxfrm)
 
 		return l
 

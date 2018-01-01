@@ -59,7 +59,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
          'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
          'fatalities.bin']
 
-        self.menuVariablesOco = [self.dropEstado, self.dropCidade, self.dropAerodromo, self.dropTurno, self.dropTipoOco]
+        self.menuVariablesOco = [self.dropEstado, self.dropCidade, self.dropAerodromo, self.dropTurno, self.dropTipoOcorrencia]
         self.menuVariablesOcoBin = ['UF.bin', 'city.bin', 'aerodrome.bin', 'dayShift.bin', 'type.bin']
         self.menuVariablesOcoDictBin = ['dicUF.bin', 'dicCity.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicType.bin']
 
@@ -67,8 +67,11 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.menuVariablesAeroBin = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin','fatalities.bin']
         self.menuVariablesAeroDictBin = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin','dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
 
+
         listaTipoOco = supportFile.returnSorted('dicType.bin')
-        self.dropTipoOco.addItems(listaTipoOco)
+        self.dropTipoOcorrencia.addItems(listaTipoOco)
+
+        self.dropClassificacao.addItems(supportFile.returnSorted('dicClassification.bin'))
 
         listaTurnoDia = supportFile.returnSorted('dicDayShift.bin')
         turnos = ["MADRUGADA", "MANHÃ", "TARDE", "NOITE"] #garante a ordem intuitiva dos turnos (caso nao tenha todos)
@@ -84,6 +87,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.dropTipoAeronave.addItems(listaTipoAero)
 
         listaDano = supportFile.returnSorted('dicHarm.bin')
+        damages = ["***", "NENHUM", "LEVE", "SUBSTANCIAL", "DESTRUÍDA", "DESTRUÍDO"]
+        listaDano = sorted(listaDano, key=lambda x: damages.index(x))
         self.dropDano.addItems(listaDano)
 
 
@@ -744,14 +749,18 @@ def main():
     #override the overrides ^^
     view = QtWidgets.QListView()  # create a ListView
     view.setFixedWidth(450)  # set the ListView with fixed Width
-    form.dropTipoOco.setView(view)  # provide the list view to Combobox object
+    #form.dropTipoOcorrencia.setView(view)  # provide the list view to Combobox object
     form.dropFabricante.setView(view)
+    #form.dropTipoOcorrencia.setFixedHeight(24)
+    #form.dropTipoOcorrencia.setFixedWidth(271)
     form.doc1Classif.setFixedHeight(24)
     form.doc1Classif.setFixedWidth(133)
     form.dae21DanoAeronave.setFixedHeight(24)
     form.dae21DanoAeronave.setFixedWidth(113)
     form.dae10CategPesoMax.setFixedHeight(24)
     form.dae10CategPesoMax.setFixedWidth(113)
+    form.dropCidade.setFixedHeight(24)
+    form.dropCidade.setFixedWidth(211)
 
 
     form.show() # mostra a janelera
