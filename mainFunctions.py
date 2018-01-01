@@ -187,6 +187,47 @@ def updateOco(ID, treeFile):
             supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ID)
 
 
+def updateOcoWithDataString(ID, treeFile, ocoList):
+    Tree = Trie.Trie(2000)
+    a = Tree.findID(ID, treeFile)
+    if (a == -1):
+        return -1
+    d = []
+    ocoList = []
+    with open('oco.bin', 'r+b') as f:
+        size = pickle.load(f)
+        f.seek(a.getOco() * size)
+        d = pickle.load(f)
+        f.seek(a.getOco() * size)
+        pickle.dump(ocoList, f)
+    l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin']
+    l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
+          'dicInvStatus.bin']
+    l3 = [1, 2, 5, 6, 8, 10, 12]
+    if ocoList[10][:2].isdigit():
+        hour = int(ocoList[10][:2])
+        ocoList[10] = 'NOITE'
+        if (hour < 6):
+            ocoList[10] = 'MADRUGADA'
+        elif (hour < 12):
+            ocoList[10] = 'MANHÃ'
+        elif (hour < 18):
+            ocoList[10] = 'TARDE'
+    if d[10][:2].isdigit():
+        hour = int(d[10][:2])
+        d[10] = 'NOITE'
+        if (hour < 6):
+            d[10] = 'MADRUGADA'
+        elif (hour < 12):
+            d[10] = 'MANHÃ'
+        elif (hour < 18):
+            d[10] = 'TARDE'
+    for i in range(len(l1)):
+        if d[l3[i]] != ocoList[l3[i]]:
+            supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
+            supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ID)
+
+
 def removeData(ID, treeFile):
     Tree = Trie.Trie(2000)
     a = Tree.findID(ID, treeFile)
@@ -293,6 +334,45 @@ def updateAnv(ID, registry, treeFile):
                         supportFile.addID(l2[i], l1[i], s[l3[i]], ID)
                 return 0
         return -1
+
+
+def updateAnvWithDataString(ID, registry, treeFile, s):
+	Tree = Trie.Trie(2000)
+	a = Tree.findID(ID, treeFile)
+	if (a == -1):
+		return -1
+	with open('anv.bin', 'r+b') as f:
+		size = pickle.load(f)
+		for anv in a.getAnv():
+			f.seek(anv*size)
+			d = pickle.load(f)
+			if d[1] == registry:
+				f.seek(anv*size)
+				#s = updateList(d, 'infoAnv.bin')
+				pickle.dump(s, f)
+				if(s[0] != d[0]):
+					return -1 # ID must be the same
+				l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
+				l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+				l3 = [3, 4, 5, 8, 10, 21, 22]
+				if s[22].isdigit():
+					if s[22] == '0':
+						s[22] = 'NÃO'
+					else:
+						s[22] = 'SIM'
+				if d[22].isdigit():
+					if d[22] == '0':
+						d[22] = 'NÃO'
+					else:
+						d[22] = 'SIM'
+				for i in range (len(l1)):
+					if(s[l3[i]] != d[l3[i]]): # if they are different
+						# update PostingList
+						supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
+						supportFile.addID(l2[i], l1[i], s[l3[i]], ID)
+				return 0
+		return -1
+
 
 
 if not os.path.isfile('oco.bin') or not os.path.isfile('anv.bin'):

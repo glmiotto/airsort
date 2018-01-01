@@ -59,11 +59,11 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
          'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
          'fatalities.bin']
 
-        self.menuVariablesOco = [self.dropEstado, self.dropCidade, self.dropAerodromo, self.dropTurno, self.dropTipoOcorrencia]
-        self.menuVariablesOcoBin = ['UF.bin', 'city.bin', 'aerodrome.bin', 'dayShift.bin', 'type.bin']
-        self.menuVariablesOcoDictBin = ['dicUF.bin', 'dicCity.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicType.bin']
+        self.menuVariablesOco = [self.dropEstado, self.dropCidade, self.dropAerodromo, self.dropTurno, self.dropTipoOcorrencia, self.dropClassificacao]
+        self.menuVariablesOcoBin = ['UF.bin', 'city.bin', 'aerodrome.bin', 'dayShift.bin', 'type.bin', 'classification.bin']
+        self.menuVariablesOcoDictBin = ['dicUF.bin', 'dicCity.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicType.bin', 'dicClassification.bin']
 
-        self.menuVariablesAero = [self.dropTipoAeronave, self.dropFabricante, self.dropQtdMotores, self.dropCategoriaPeso]
+        self.menuVariablesAero = [self.dropTipoAeronave, self.dropFabricante, self.dropModelo, self.dropQtdMotores, self.dropCategoriaPeso, self.dropDano]
         self.menuVariablesAeroBin = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin','fatalities.bin']
         self.menuVariablesAeroDictBin = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin','dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
 
@@ -244,6 +244,10 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # Limpa a entrada do ID
         self.textCodigo.setText("")
 
+        # Limpa button groups:
+        self.butInvQqr.setChecked(True)
+        self.butFatalQqr.setChecked(True)
+
         # Reseta calendário FROM para seu mínimo e o TO para a data atual no sistema do usuário
         self.dateTimeFrom.setDateTime(self.dateTimeFrom.minimumDateTime())
         self.dateTimeTo.setDateTime(self.dateTimeTo.dateTime().currentDateTime())
@@ -274,6 +278,19 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             if v.currentText() != "Qualquer":
                 IDs = IDs.intersection(supportFile.getIDs(self.menuVariablesOcoDictBin[i], self.menuVariablesOcoBin[i], v.currentText()))
 
+        textinvest = self.butgroupInvestigacao.checkedButton().text().upper()
+        if textinvest != 'QUALQUER':
+            IDs = IDs.intersection(supportFile.getIDs('dicInvStatus.bin', 'invStatus.bin', textinvest))
+
+        for i,v in enumerate(self.menuVariablesAero):
+            if v.currentText() != "Qualquer":
+                IDs = IDs.intersection(supportFile.getIDs(self.menuVariablesAeroDictBin[i], self.menuVariablesAeroBin[i], v.currentText()))
+
+        textfatal = self.butgroupFatalidades.checkedButton().text().upper()
+        if textfatal == "FATAL":
+            IDs = IDs.intersection(supportFile.getIDs('dicFatalities.bin', 'fatalities.bin', "SIM"))
+        elif textfatal == "NÃO FATAL":
+            IDs = IDs.intersection(supportFile.getIDs('dicFatalities.bin', 'fatalities.bin', "NÃO"))
 
         startdate = datetime.datetime.combine(self.dateTimeFrom.date().toPyDate(), self.dateTimeFrom.time().toPyTime())
         enddate = datetime.datetime.combine(self.dateTimeTo.date().toPyDate(), self.dateTimeTo.time().toPyTime())
@@ -287,13 +304,10 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for x in reversed(range(self.tableResultadosOco.rowCount())):
             self.tableResultadosOco.removeRow(x)
         #self.tableResultadosOco.setRowCount(0)
-
         IDkeepers = []
         for id in IDs:
 
             dados = mainFunctions.getInfoID(id, 'Trie.bin')
-            #if id == "201604251335501":
-            #    print(dados)
 
             date = dados[0][9]
             time = dados[0][10]
@@ -302,9 +316,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
             datatempo = datetime.datetime.combine(datetime.date(int(date.split("-")[0]), int(date.split("-")[1]), int(date.split("-")[2]) ),
                                                   datetime.time(int(time.split(":")[0]), int(time.split(":")[1]), int(time.split(":")[2]) ))
-            #print("combinou")
             if startdate <= datatempo <= enddate:
-                #print("comparou")
                 IDkeepers.append(id)
                 rowPosition = self.tableResultadosOco.rowCount()
                 self.tableResultadosOco.insertRow(rowPosition)
@@ -361,9 +373,6 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.tableResultadosAero.setSortingEnabled(True)
         self.tableResultadosAero.sortItems(0, QtCore.Qt.AscendingOrder)
 
-
-
-        print(self.classifButtonGroup.checkedButton().text())
 
 
     def initializeInsereRemoveTab(self):
@@ -478,7 +487,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             if yn == QtWidgets.QMessageBox.No:
                 pass
             else:
-                registro = self.novaStringOcorrencia()
+                self.novoregistro = self.novaStringOcorrencia()
+                mainFunctions.updateOcoWithDataString(id,'Trie.bin', self.novoregistro)
 
         else: # nao existe essa ID; fazer uma nova sem perguntas
             registro = self.novaStringOcorrencia()
@@ -529,7 +539,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 if yn == QtWidgets.QMessageBox.No:
                     pass
                 else:
-                    registro = self.novaStringAeronave()
+                    self.novoRegistro = self.novaStringAeronave()
+                    mainFunctions.updateAnvWithDataString(id, matr, 'Trie.bin', self.novoRegistro)
 
             else: #nao achou esta aeronave registrada para este ID. Inserir sem perguntas
                 registro = self.novaStringAeronave()
