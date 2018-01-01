@@ -575,6 +575,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.limparRegAero.clicked.connect(self.onLimparRegAeroClicked)
         self.registrarRegOco.clicked.connect(self.onRegistrarRegOcoClicked)
         self.registrarRegAero.clicked.connect(self.onRegistrarRegAeroClicked)
+        self.removerRegOco.clicked.connect(self.onRemoverRegOcoClicked)
 
         self.toc13NumRelatOco.setText("")
         self.toc13NumRelatOco.setEnabled(False)
@@ -585,6 +586,70 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.coc15TemDataRelat.setChecked(False)
         self.coc14RelatPublOco.setChecked(False)
+
+
+    def onRemoverRegOcoClicked(self):
+
+        # Checar se ID ja existe
+        id = self.toc0CodOco.displayText()
+        dados = mainFunctions.getInfoID(id, 'Trie.bin')
+
+        if id == "":
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+
+            msg.setWindowTitle("Campo Obrigatório Vazio")
+            msg.setText("Preencha o código identificador da ocorrência.\n")
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+            msg.exec()
+            return
+
+        if dados != -1:  # se não retornou -1, então já existe.
+
+            yn = QtWidgets.QMessageBox.question(self, 'Deletar Ocorrência?',
+
+                                                "Deseja deletar os dados de ocorrência e de aeronaves associados ao código ID informado?\n"
+                                                "(NOTA: Esta ação é irreversível! Os dados correntes serão permanentemente descartados)",
+                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            if yn == QtWidgets.QMessageBox.No:
+                pass
+            else:
+                retornoRem = mainFunctions.removeData(id, 'Trie.bin')
+                if retornoRem == -1:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                    msg.setWindowTitle("Erro de remoção")
+                    msg.setText("Não foi possível deletar o registro da ocorrência especificada no banco de dados.\n")
+                    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                    msg.exec()
+                    return
+                else:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                    msg.setWindowTitle("Remoção bem sucedida")
+                    msg.setText("Registro de ocorrência deletado com sucesso.\n")
+                    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                    msg.exec()
+                    return
+
+
+        else:  # nao existe essa ID;
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+
+            msg.setWindowTitle("Ocorrência não encontrada")
+            msg.setText("Não existe ocorrência com o código ID informado no banco de dados.\n")
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+            msg.exec()
+            return
+
+
 
 
     def onTemDataRelatorioChanged(self):
@@ -640,12 +705,53 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             else:
                 self.dadosOcoLista, self.dadosOcoStringFinal = self.novaStringOcorrencia()
 
-                mainFunctions.updateOcoWithDataString(id,'Trie.bin', self.dadosOcoLista)
+                ret = mainFunctions.updateOcoWithDataString(id,'Trie.bin', self.dadosOcoLista)
+                if ret == -1:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                    msg.setWindowTitle("Erro de atualização")
+                    msg.setText("Não foi possível atualizar o registro da ocorrência especificada no banco de dados.\n")
+                    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                    msg.exec()
+                    return
+                else:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                    msg.setWindowTitle("Atualização bem sucedida")
+                    msg.setText("Registro de ocorrência atualizado com sucesso.\n")
+                    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                    msg.exec()
+                    return
 
         else: # nao existe essa ID; fazer uma nova sem perguntas
             self.dadosOcoLista, self.dadosOcoStringFinal = self.novaStringOcorrencia()
-            mainFunctions.addOcoData(self.dadosOcoLista,'Trie.bin')
+            ret = mainFunctions.addOcoData(self.dadosOcoLista,'Trie.bin')
 
+            if ret == -1:
+
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                msg.setWindowTitle("Erro de inserção")
+                msg.setText("Não foi possível inserir a nova ocorrência no banco de dados.\n")
+                msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                msg.exec()
+                return
+
+            else:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                msg.setWindowTitle("Inserção bem-sucedida")
+                msg.setText("Nova ocorrência registrada com sucesso.\n")
+                msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                msg.exec()
 
 
     def onRegistrarRegAeroClicked(self):
@@ -693,13 +799,53 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     pass
                 else:
                     self.dadosAeroLista, self.dadosAeroStringFinal = self.novaStringAeronave()
-                    mainFunctions.updateAnvWithDataString(id, matr, 'Trie.bin', self.dadosAeroLista)
+                    ret = mainFunctions.updateAnvWithDataString(id, matr, 'Trie.bin', self.dadosAeroLista)
+                    if ret == -1:
+                        msg = QtWidgets.QMessageBox()
+                        msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                        msg.setWindowTitle("Erro de atualização")
+                        msg.setText("Não foi possível atualizar os dados da aeronave especificada no banco de dados.\n")
+                        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                        msg.exec()
+                        return
+                    else:
+                        msg = QtWidgets.QMessageBox()
+                        msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                        msg.setWindowTitle("Atualização bem sucedida")
+                        msg.setText("Registro de aeronave atualizado com sucesso.\n")
+                        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                        msg.exec()
+                        return
+
 
             else: #nao achou esta aeronave registrada para este ID. Inserir sem perguntas
                 self.dadosAeroLista, self.dadosAeroStringFinal = self.novaStringAeronave()
-                mainFunctions.addAeroData([self.dadosAeroLista], 'Trie.bin')
+                ret = mainFunctions.addAeroData([self.dadosAeroLista], 'Trie.bin')
 
+                if ret == -1:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
 
+                    msg.setWindowTitle("Erro de inserção")
+                    msg.setText("Não foi possível inserir o novo registro de aeronave no banco de dados.\n")
+                    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                    msg.exec()
+                    return
+                else:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Information)
+
+                    msg.setWindowTitle("Inserção bem sucedida")
+                    msg.setText("Novo registro de aeronave inserido com sucesso.\n")
+                    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+                    msg.exec()
+                    return
 
         else:  # nao existe essa ID; não pode registrar aeronave ainda
             msg = QtWidgets.QMessageBox()

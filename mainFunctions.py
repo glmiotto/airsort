@@ -150,6 +150,8 @@ def addOcoData(ocoList, treeFile):
     for i in range(7):
         supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ocoList[0])
 
+    return 0
+
 #anvList list of lists
 def addAeroData(anvList, treeFile):
 
@@ -281,6 +283,8 @@ def updateOcoWithDataString(ID, treeFile, ocoList):
         if d[l3[i]] != ocoList[l3[i]]:
             supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)
             supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ID)
+
+    return 0
 
 
 def removeData(ID, treeFile):
