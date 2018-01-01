@@ -127,7 +127,8 @@ class Trie:
 				curNode = pickle.load(f) # root
 				for letter in ID:
 					number = int(letter)
-					childPos = curNode.getChild(number) 
+					childPos = curNode.getChild(number)
+					#print(childPos)
 					if childPos == None:
 						return -1
 					f.seek(childPos*size)
@@ -205,26 +206,31 @@ class Trie:
 					curNode = parent
 					newPos = parentInfo[0]
 					f.seek(-size, 2) # colocar o último na posição do que foi removido
-					last = pickle.load(f)
-					f.seek(-size, 2)
-					f.truncate()
-					f.seek(size*pos) # posição para colocar o que era o último
-					pickle.dump(last, f)
-					for i in range(10):
-						if last.getChild(i) != None:
-							f.seek(last.getChild(i)*size)
-							child = pickle.load(f)
-							f.seek(last.getChild(i)*size)
-							par = child.getParent()
-							child.setParent(pos, par[1])
-							pickle.dump(child, f)
-					parentInfo = last.getParent()
-					f.seek(parentInfo[0]*size)
-					parent = pickle.load(f)
-					f.seek(parentInfo[0]*size)
-					parent.setChild(parentInfo[1], pos)
-					pickle.dump(parent, f)
-					pos = newPos
+					indexLast = f.tell()//size
+					if(indexLast != pos):
+						last = pickle.load(f)
+						f.seek(-size, 2)
+						f.truncate()
+						f.seek(size*pos) # posição para colocar o que era o último
+						pickle.dump(last, f)
+						for i in range(10):
+							if last.getChild(i) != None:
+								f.seek(last.getChild(i)*size)
+								child = pickle.load(f)
+								f.seek(last.getChild(i)*size)
+								par = child.getParent()
+								child.setParent(pos, par[1])
+								pickle.dump(child, f)
+						parentInfo = last.getParent()
+						f.seek(parentInfo[0]*size)
+						parent = pickle.load(f)
+						f.seek(parentInfo[0]*size)
+						parent.setChild(parentInfo[1], pos)
+						pickle.dump(parent, f)
+						pos = newPos
+					else:
+						f.truncate()
+						pos = newPos
 				return nodeToRemove
 		except:
 			return -1
@@ -278,15 +284,13 @@ Tree = Trie(2000)
 
 buildTrie()
 #Tree.inOrder('Trie.bin')
-a = (Tree.filterID('', 'Trie.bin'))
-print(Tree.findID('200803063018556', 'Trie.bin'))
-print(Tree.findID('201104061447671', 'Trie.bin'))
-Tree.removeID('201104061447671', 'Trie.bin')
-print(Tree.findID('201104061447671', 'Trie.bin'))
-print(Tree.findID('200803063018556', 'Trie.bin'))
+#a = (Tree.filterID('', 'Trie.bin'))
+#Tree.addID('100', 0, 'Trie.bin')
+Tree.addID('50', 0, 'Trie.bin')
+a = Tree.filterID('', 'Trie.bin')
+Tree.removeID('50', 'Trie.bin')
 b = Tree.filterID('', 'Trie.bin')
-
-print(a ^ b)
+print(len(b))
 '''
 '''
 print(len(Tree.filterID('2009', 'Trie.bin')))

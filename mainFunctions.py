@@ -219,7 +219,11 @@ def removeData(ID, treeFile):
             d[10] = 'TARDE'
     for i in range(len(l1)):
         supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)  # remove in Posting List
-    for anv in a.getAnv():  # For each anv
+    changed = False
+    for data in a.getAnv():  # For each anv
+        if not changed:
+            anv = data
+        changed = False
         d = []
         last = 0
         with open('anv.bin', 'rb') as f:
@@ -230,7 +234,10 @@ def removeData(ID, treeFile):
             last = f.tell() // size
         toUpdate = supportFile.removeInMainFile(anv, 'anv.bin')  # ID to update Position
         if toUpdate != -1:
-            Tree.updateID(toUpdate, None, anv, last, treeFile, 2)  # change anv
+            if toUpdate != ID:
+                Tree.updateID(toUpdate, None, anv, last, treeFile, 2)  # change anv
+            else:
+                changed = True
     l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
           'fatalities.bin']
     l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin',

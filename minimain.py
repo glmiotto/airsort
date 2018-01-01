@@ -205,7 +205,11 @@ def removeData(ID, treeFile):
 			d[10] = 'TARDE'
 	for i in range(len(l1)):
 		supportFile.removeID(l2[i], l1[i], d[l3[i]], ID) # remove in Posting List
-	for anv in a.getAnv(): # For each anv
+	changed = False
+	for data in a.getAnv(): # For each anv
+		if not changed:
+			anv = data
+		changed = False
 		d = []
 		last = 0
 		with open('anv.bin', 'rb') as f:
@@ -216,7 +220,10 @@ def removeData(ID, treeFile):
 			last = f.tell()//size
 		toUpdate = supportFile.removeInMainFile(anv, 'anv.bin') # ID to update Position
 		if toUpdate != -1:
-			Tree.updateID(toUpdate, None, anv, last, treeFile, 2) # change anv
+			if toUpdate != ID:
+				Tree.updateID(toUpdate, None, anv, last, treeFile, 2) # change anv
+			else:
+				changed = True
 		l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
 		l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
 		l3 = [3, 4, 5, 8, 10, 21, 22]
@@ -271,222 +278,225 @@ def updateAnv(ID, registry, treeFile):
 
 def menu():
 	while True:
-		ans = input('0 - Sair do Programa\n1 - Mostrar Ranking\n2 - Mostrar Categoria Ordenada\n3 - Consultar ID\n4 - Atualizar Registro\nSua Escolha: ')
-		while not ans.isdigit() or int(ans) < 0 or int(ans) > 4:
-			ans = input('Insira um número entre 0 e 4\nSua Escolha: ')
-		if ans == '0':
-			break
-		elif ans == '1':
-			l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:', 'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:', 'Presença de Fatalidades:']
-			l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
-			while True:
-				ans = input('0 - Voltar para o menu principal\n1 - Ranking sobre Ocorrências\n2 - Ranking sobre Aeronaves\nSua Escolha: ')
-				while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
-					print('Insira um número entre 0 e 2')
-					ans = input('Sua Escolha: ')
-				if ans == '0':
-					break
-				if ans == '1':
-					while True:
-						ans = input('0 - Voltar\n1 - Classificação\n2 - Tipo\n3 - Cidade\n4 - Estado\n5 - Aeródromo\n6 - Turno do Dia\n7 - Status Investigativo\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
-							print('Insira um número entre 0 e 7')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
-						print()
-						print(l[int(ans)-1])
-						showRank(l2[int(ans)-1])
-						print()
-						input('Pressione enter para continuar')				
-				else:
-					while True:
-						ans = input('0 - Voltar\n1 - Tipo de Veículo\n2 - Fabricante\n3 - Modelo\n4 - Quantidade de Motores\n5 - Classe\n6 - Dano\n7 - Presença de Fatalidades\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
-							print('Insira um número entre 0 e 7')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
-						print()
-						print(l[int(ans)+6])
-						showRank(l2[int(ans)+6])
-						print()
-						input('Pressione enter para continuar')
-		elif ans == '2':
-			l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:', 'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:', 'Presença de Fatalidades:']
-			l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
-			while True:
-				ans = input('0 - Voltar para o menu principal\n1 - Ordenar Dado sobre Ocorrências\n2 - Ordenar Dado sobre Aeronaves\nSua Escolha: ')
-				while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
-					print('Insira um número entre 0 e 2')
-					ans = input('Sua Escolha: ')
-				if ans == '0':
-					break
-				if ans == '1':
-					while True:
-						ans = input('0 - Voltar\n1 - Classificação\n2 - Tipo\n3 - Cidade\n4 - Estado\n5 - Aeródromo\n6 - Turno do Dia\n7 - Status Investigativo\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
-							print('Insira um número entre 0 e 7')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
-						print()
-						print(l[int(ans)-1])
-						sortedData(l2[int(ans)-1])
-						print()
-						input('Pressione enter para continuar')				
-				else:
-					while True:
-						ans = input('0 - Voltar\n1 - Tipo de Veículo\n2 - Fabricante\n3 - Modelo\n4 - Quantidade de Motores\n5 - Classe\n6 - Dano\n7 - Presença de Fatalidades\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
-							print('Insira um número entre 0 e 7')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
-						print()
-						print(l[int(ans)+6])
-						sortedData(l2[int(ans)+6])
-						print()
-						input('Pressione enter para continuar')
-		elif ans == '3':
-			while True:
-				ans = input('0 - Voltar para o menu principal\n1 - Sei ID de Ocorrência\n2 - Buscar ID de Ocorrência\nSua Escolha: ')
-				while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
-					print('Insira um número entre 0 e 2')
-					ans = input('Sua Escolha: ')
-				if ans == '0':
-					break
-				elif ans == '1':
-					while True:
-						ans = input('ID: ')
-						while not ans.isdigit():
-							ans = input('O ID deve ser um número\nID: ')
-						data = getInfoID(ans, 'Trie.bin')
-						if data == -1:
-							print('\nID não encontrado\n')
-						else:
-							print('\nOcorrência:\n')
-							with open('infoOco.bin', 'rb') as f:
-								info = pickle.load(f)
-								for i in range(len(info)):
-									print('{} = {}'.format(info[i], data[0][i]))
+		try:
+			ans = input('0 - Sair do Programa\n1 - Mostrar Ranking\n2 - Mostrar Categoria Ordenada\n3 - Consultar ID\n4 - Atualizar Registro\nSua Escolha: ')
+			while not ans.isdigit() or int(ans) < 0 or int(ans) > 4:
+				ans = input('Insira um número entre 0 e 4\nSua Escolha: ')
+			if ans == '0':
+				break
+			elif ans == '1':
+				l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:', 'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:', 'Presença de Fatalidades:']
+				l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+				while True:
+					ans = input('0 - Voltar para o menu principal\n1 - Ranking sobre Ocorrências\n2 - Ranking sobre Aeronaves\nSua Escolha: ')
+					while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
+						print('Insira um número entre 0 e 2')
+						ans = input('Sua Escolha: ')
+					if ans == '0':
+						break
+					if ans == '1':
+						while True:
+							ans = input('0 - Voltar\n1 - Classificação\n2 - Tipo\n3 - Cidade\n4 - Estado\n5 - Aeródromo\n6 - Turno do Dia\n7 - Status Investigativo\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
+								print('Insira um número entre 0 e 7')
+								ans = input('Sua Escolha: ')
+							if ans == '0':
+								break
+							print()
+							print(l[int(ans)-1])
+							showRank(l2[int(ans)-1])
+							print()
+							input('Pressione enter para continuar')				
+					else:
+						while True:
+							ans = input('0 - Voltar\n1 - Tipo de Veículo\n2 - Fabricante\n3 - Modelo\n4 - Quantidade de Motores\n5 - Classe\n6 - Dano\n7 - Presença de Fatalidades\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
+								print('Insira um número entre 0 e 7')
+								ans = input('Sua Escolha: ')
+							if ans == '0':
+								break
+							print()
+							print(l[int(ans)+6])
+							showRank(l2[int(ans)+6])
+							print()
 							input('Pressione enter para continuar')
-							with open('infoAnv.bin', 'rb') as f:
-								info = pickle.load(f)
-								for i in range(1, len(data)):
-									print('\nAeronave {}:\n'.format(i))
-									for j in range(len(info)):
-										print('{} = {}'.format(info[j], data[i][j]))
-									input('Pressione enter para continuar')
-						ans = input('0 - Voltar\n1 - Consultar outro ID\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
-							print('Insira um número entre 0 e 1')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
-				else:
-					while True:
-						IDs = set()
-						ans = input('0 - Sei Prefixo do ID\n1 - Filtrar sem saber prefixo do ID\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
-							print('Insira um número entre 0 e 1')
-							ans = input('Sua Escolha: ')
-						filterMore = 1 # make one union
-						if ans == '0':
-							ans = input('Prefixo do ID: ')
+			elif ans == '2':
+				l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:', 'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:', 'Presença de Fatalidades:']
+				l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+				while True:
+					ans = input('0 - Voltar para o menu principal\n1 - Ordenar Dado sobre Ocorrências\n2 - Ordenar Dado sobre Aeronaves\nSua Escolha: ')
+					while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
+						print('Insira um número entre 0 e 2')
+						ans = input('Sua Escolha: ')
+					if ans == '0':
+						break
+					if ans == '1':
+						while True:
+							ans = input('0 - Voltar\n1 - Classificação\n2 - Tipo\n3 - Cidade\n4 - Estado\n5 - Aeródromo\n6 - Turno do Dia\n7 - Status Investigativo\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
+								print('Insira um número entre 0 e 7')
+								ans = input('Sua Escolha: ')
+							if ans == '0':
+								break
+							print()
+							print(l[int(ans)-1])
+							sortedData(l2[int(ans)-1])
+							print()
+							input('Pressione enter para continuar')				
+					else:
+						while True:
+							ans = input('0 - Voltar\n1 - Tipo de Veículo\n2 - Fabricante\n3 - Modelo\n4 - Quantidade de Motores\n5 - Classe\n6 - Dano\n7 - Presença de Fatalidades\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 7:
+								print('Insira um número entre 0 e 7')
+								ans = input('Sua Escolha: ')
+							if ans == '0':
+								break
+							print()
+							print(l[int(ans)+6])
+							sortedData(l2[int(ans)+6])
+							print()
+							input('Pressione enter para continuar')
+			elif ans == '3':
+				while True:
+					ans = input('0 - Voltar para o menu principal\n1 - Sei ID de Ocorrência\n2 - Buscar ID de Ocorrência\nSua Escolha: ')
+					while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
+						print('Insira um número entre 0 e 2')
+						ans = input('Sua Escolha: ')
+					if ans == '0':
+						break
+					elif ans == '1':
+						while True:
+							ans = input('ID: ')
 							while not ans.isdigit():
 								ans = input('O ID deve ser um número\nID: ')
-							IDs = IDs.union(filterIDTrie(ans, 'Trie.bin'))
-							print('Remaining IDs:')
-							for ID in IDs:
-								print(ID)
-							ans = input('0 - Parar de Filtrar\n1 - Continuar Filtrando\nSua Escolha: ')
+							data = getInfoID(ans, 'Trie.bin')
+							if data == -1:
+								print('\nID não encontrado\n')
+							else:
+								print('\nOcorrência:\n')
+								with open('infoOco.bin', 'rb') as f:
+									info = pickle.load(f)
+									for i in range(len(info)):
+										print('{} = {}'.format(info[i], data[0][i]))
+								input('Pressione enter para continuar')
+								with open('infoAnv.bin', 'rb') as f:
+									info = pickle.load(f)
+									for i in range(1, len(data)):
+										print('\nAeronave {}:\n'.format(i))
+										for j in range(len(info)):
+											print('{} = {}'.format(info[j], data[i][j]))
+										input('Pressione enter para continuar')
+							ans = input('0 - Voltar\n1 - Consultar outro ID\nSua Escolha: ')
 							while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
 								print('Insira um número entre 0 e 1')
 								ans = input('Sua Escolha: ')
 							if ans == '0':
-								filterMore = 0 # stop to filter
-							else:
-								filterMore = 2 # make intersections
-						l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:', 'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:', 'Presença de Fatalidades:']
-						l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin', 'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
-						l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
-						while filterMore > 0 and len(l) > 0:
-							print('Filtrar por:')
-							for i in range(len(l)):
-								print('{} - {}'.format(i, l[i][:len(l[i])-1]))
-							ans = input('Sua Escolha: ')
-							while not ans.isdigit() or int(ans) < 0 or int(ans) > len(l)-1:
-								print('Insira um número entre 0 e {}'.format(len(l)-1))
-								ans = input('Sua Escolha: ')
-							ans = int(ans)
-							data = input('Insira Informação sobre {} '.format(l[ans]))
-							if filterMore == 1:
-								filterMore = 2
-								IDs = IDs.union(supportFile.getIDs(l2[ans], l1[ans], data.upper()))
-							else:
-								IDs = IDs.intersection(supportFile.getIDs(l2[ans], l1[ans], data.upper()))
-							l.pop(ans)
-							l1.pop(ans)
-							l2.pop(ans)
-							print('Remaining IDs:')
-							for ID in IDs:
-								print(ID)
-							if len(IDs) < 2:
 								break
-							else:
+					else:
+						while True:
+							IDs = set()
+							ans = input('0 - Sei Prefixo do ID\n1 - Filtrar sem saber prefixo do ID\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
+								print('Insira um número entre 0 e 1')
+								ans = input('Sua Escolha: ')
+							filterMore = 1 # make one union
+							if ans == '0':
+								ans = input('Prefixo do ID: ')
+								while not ans.isdigit():
+									ans = input('O ID deve ser um número\nID: ')
+								IDs = IDs.union(filterIDTrie(ans, 'Trie.bin'))
+								print('Remaining IDs:')
+								for ID in IDs:
+									print(ID)
 								ans = input('0 - Parar de Filtrar\n1 - Continuar Filtrando\nSua Escolha: ')
 								while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
 									print('Insira um número entre 0 e 1')
 									ans = input('Sua Escolha: ')
 								if ans == '0':
+									filterMore = 0 # stop to filter
+								else:
+									filterMore = 2 # make intersections
+							l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:', 'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:', 'Presença de Fatalidades:']
+							l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin', 'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
+							l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin', 'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+							while filterMore > 0 and len(l) > 0:
+								print('Filtrar por:')
+								for i in range(len(l)):
+									print('{} - {}'.format(i, l[i][:len(l[i])-1]))
+								ans = input('Sua Escolha: ')
+								while not ans.isdigit() or int(ans) < 0 or int(ans) > len(l)-1:
+									print('Insira um número entre 0 e {}'.format(len(l)-1))
+									ans = input('Sua Escolha: ')
+								ans = int(ans)
+								data = input('Insira Informação sobre {} '.format(l[ans]))
+								if filterMore == 1:
+									filterMore = 2
+									IDs = IDs.union(supportFile.getIDs(l2[ans], l1[ans], data.upper()))
+								else:
+									IDs = IDs.intersection(supportFile.getIDs(l2[ans], l1[ans], data.upper()))
+								l.pop(ans)
+								l1.pop(ans)
+								l2.pop(ans)
+								print('Remaining IDs:')
+								for ID in IDs:
+									print(ID)
+								if len(IDs) < 2:
 									break
-						ans = input('0 - Voltar\n1 - Buscar outro ID\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
-							print('Insira um número entre 0 e 1')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
-		else:
-			while True:
-				ans = input('0 - Voltar para o menu principal\n1 - Adicionar novo ID\n2 - Atualizar dado de ID\n3 - Remover ID\nSua Escolha: ')
-				while not ans.isdigit() or int(ans) < 0 or int(ans) > 3:
-					print('Insira um número entre 0 e 3')
-					ans = input('Sua Escolha: ')
-				if ans == '0':
-					break
-				elif ans == '1':
-					ocoList, anvList = readNewData('Trie.bin')
-					addData(ocoList, anvList, 'Trie.bin')
-				elif ans == '2':
-					while True:
-						ans = input('0 - Voltar\n1 - Atualizar Ocorrência\n2 - Atualizar Aeronave\nSua Escolha: ')
-						while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
-							print('Insira um número entre 0 e 2')
-							ans = input('Sua Escolha: ')
-						if ans == '0':
-							break
+								else:
+									ans = input('0 - Parar de Filtrar\n1 - Continuar Filtrando\nSua Escolha: ')
+									while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
+										print('Insira um número entre 0 e 1')
+										ans = input('Sua Escolha: ')
+									if ans == '0':
+										break
+							ans = input('0 - Voltar\n1 - Buscar outro ID\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 1:
+								print('Insira um número entre 0 e 1')
+								ans = input('Sua Escolha: ')
+							if ans == '0':
+								break
+			else:
+				while True:
+					ans = input('0 - Voltar para o menu principal\n1 - Adicionar novo ID\n2 - Atualizar dado de ID\n3 - Remover ID\nSua Escolha: ')
+					while not ans.isdigit() or int(ans) < 0 or int(ans) > 3:
+						print('Insira um número entre 0 e 3')
+						ans = input('Sua Escolha: ')
+					if ans == '0':
+						break
+					elif ans == '1':
+						ocoList, anvList = readNewData('Trie.bin')
+						addData(ocoList, anvList, 'Trie.bin')
+					elif ans == '2':
+						while True:
+							ans = input('0 - Voltar\n1 - Atualizar Ocorrência\n2 - Atualizar Aeronave\nSua Escolha: ')
+							while not ans.isdigit() or int(ans) < 0 or int(ans) > 2:
+								print('Insira um número entre 0 e 2')
+								ans = input('Sua Escolha: ')
+							if ans == '0':
+								break
+							ID = input('ID: ')
+							while not ID.isdigit():
+								ID = input('O ID deve ser um número\nID: ')
+							data = getInfoID(ID, 'Trie.bin')
+							if data == -1:
+								print('\nID não existente\n')
+								continue
+							if ans == '1':
+								updateOco(ID, 'Trie.bin')
+							else:
+								for i in range(1, len(data)):
+									print(data[i][1])
+								registry = (input('Escolha a Matricula da Aeronave dentre as de cima: ')).upper()
+								if(updateAnv(ID, registry, 'Trie.bin') == -1):
+									print('Matricula não existente')
+					else:
 						ID = input('ID: ')
 						while not ID.isdigit():
 							ID = input('O ID deve ser um número\nID: ')
-						data = getInfoID(ID, 'Trie.bin')
-						if data == -1:
-							print('\nID não existente\n')
-							continue
-						if ans == '1':
-							updateOco(ID, 'Trie.bin')
-						else:
-							for i in range(1, len(data)):
-								print(data[i][1])
-							registry = (input('Escolha a Matricula da Aeronave dentre as de cima: ')).upper()
-							if(updateAnv(ID, registry, 'Trie.bin') == -1):
-								print('Matricula não existente')
-				else:
-					ID = input('ID: ')
-					while not ID.isdigit():
-						ID = input('O ID deve ser um número\nID: ')
-					if(removeData(ID, 'Trie.bin') == -1):
-						print('ID não existe')
+						if(removeData(ID, 'Trie.bin') == -1):
+							print('ID não existe')
+		except:
+			continue
 							
 if not os.path.isfile('oco.bin') or not os.path.isfile('anv.bin'):							
 	filesCreation.createFiles()
