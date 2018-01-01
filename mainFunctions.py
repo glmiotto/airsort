@@ -7,14 +7,15 @@ import os.path
 
 
 def createREADME():
-	string = '''Os dados sobre ocorrência devem seguir os seguinte formato:
+    string = '''Os dados sobre ocorrência devem seguir os seguinte formato:
 	"ocorrencia classificacao"~"ocorrencia tipo"~"ocorrencia latitude"~"ocorrencia longitude"~"ocorrencia cidade"~"ocorrencia uf"~"ocorrencia pais"~"ocorrencia aerodromo"~"ocorrencia dia"~"ocorrencia horario"~"investigacao aeronave liberada"~"investigacao status"~"divulgacao relatorio numero"~"divulgacao relatorio publicado"~"divulgacao dia publicacao"~"total recomendacoes"~"total aeronaves envolvidas"~"ocorrencia saida pista"~"ocorrencia dia extracao"
 	cada informação deve estar entre aspas e separada de outra por um ~, por favor, separe a palavra dentro das aspas com espaços, os dados devem seguir a ordem acima substituindo pelo seus respectivos dados, caso não tenha dados sobre a informação, por favor, coloque três asteriscos(***).
 	A mesma lógica segue para o dados das aeronaves, com a seguinte ordem:
 	"aeronave matricula"~"aeronave operador categoria"~"aeronave tipo veiculo"~"aeronave fabricante"~"aeronave modelo"~"aeronave tipo icao"~"aeronave motor tipo"~"aeronave motor quantidade"~"aeronave pmd"~"aeronave pmd categoria"~"aeronave assentos"~"aeronave ano fabricacao"~"aeronave pais fabricante"~"aeronave pais registro"~"aeronave registro categoria"~"aeronave registro segmento"~"aeronave voo origem"~"aeronave voo destino"~"aeronave fase operacao"~"aeronave tipo operacao"~"aeronave nivel dano"~"total fatalidades"~"aeronave dia extracao"
 	A matrícula da aeronave deve sem um valor diferente de *** '''
-	with open('README.txt', 'w') as f:
-		f.write(string)
+    with open('README.txt', 'w') as f:
+        f.write(string)
+
 
 def sortedIDs(treeFile):
     Tree = Trie.Trie(2000)
@@ -201,8 +202,8 @@ def removeData(ID, treeFile):
         f.seek(-size, 2)
         last = f.tell() // size
     toUpdate = supportFile.removeInMainFile(a.getOco(), 'oco.bin')  # ID to update position
-	if toUpdate != -1:
-		Tree.updateID(toUpdate, a.getOco(), None, None, treeFile, 0)  # update oco position
+    if toUpdate != -1:
+        Tree.updateID(toUpdate, a.getOco(), None, None, treeFile, 0)  # update oco position
     l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin']
     l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
           'dicInvStatus.bin']
@@ -228,20 +229,22 @@ def removeData(ID, treeFile):
             f.seek(-size, 2)
             last = f.tell() // size
         toUpdate = supportFile.removeInMainFile(anv, 'anv.bin')  # ID to update Position
-		if toUpdate != -1:
-			Tree.updateID(toUpdate, None, anv, last, treeFile, 2)  # change anv
-        l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
-              'fatalities.bin']
-        l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin',
-              'dicHarm.bin', 'dicFatalities.bin']
-        l3 = [3, 4, 5, 8, 10, 21, 22]
-        if d[22].isdigit():
-            if d[22] == '0':
-                d[22] = 'NÃO'
-            else:
-                d[22] = 'SIM'
-        for i in range(len(l1)):
-            supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)  # remove in Posting List
+        if toUpdate != -1:
+            Tree.updateID(toUpdate, None, anv, last, treeFile, 2)  # change anv
+    l1 = ['veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
+          'fatalities.bin']
+    l2 = ['dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin', 'dicClass.bin',
+          'dicHarm.bin', 'dicFatalities.bin']
+    l3 = [3, 4, 5, 8, 10, 21, 22]
+    if d[22].isdigit():
+        if d[22] == '0':
+            d[22] = 'NÃO'
+        else:
+            d[22] = 'SIM'
+    for i in range(len(l1)):
+        supportFile.removeID(l2[i], l1[i], d[l3[i]], ID)  # remove in Posting List
+
+
     return 0
 
 
@@ -286,8 +289,11 @@ def updateAnv(ID, registry, treeFile):
 
 
 if not os.path.isfile('oco.bin') or not os.path.isfile('anv.bin'):
-	filesCreation.createFiles()
+    filesCreation.createFiles()
 if not os.path.isfile('Trie.bin'):
-	Trie.buildTrie()
+    Trie.buildTrie()
 if not os.path.isfile('README.txt'):
-	createREADME()
+    createREADME()
+
+#filesCreation.createFiles()
+#Trie.buildTrie()

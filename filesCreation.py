@@ -379,20 +379,20 @@ def createFiles():
 	dayShiftFile(10, 1000, 100)
 	fatalitiesFile(22, 1000, 100)
 
-	citiesByUF('oco.bin', 'citiesByUF.bin', 'dicCitiesByUF.bin', 6, 1000, 100 )
+	newFileMaker('oco.bin', 'citiesByUF.bin', 'dicCitiesByUF.bin', 6, 5, 1000, 100 ) # UF-->[cities]
+	newFileMaker('oco.bin', 'aerodromesByUF.bin', 'dicAerodromesByUF.bin', 6, 8, 1000, 100 ) # UF-->[aerodromes]
+	newFileMaker('anv.bin', 'modelsByManufacturer.bin', 'dicModelsByManufacturer.bin', 4, 5, 1000, 100) # Marca-->[modelos]
 
 
 
-def citiesByUF(inputDir, outputDir, dictionaryDir, index, blockSize, dicBlockSize):
+def newFileMaker(inputDir, outputDir, dictionaryDir, index, bodyIndex, blockSize, dicBlockSize):
 	# cria os arquivos
 	with open(outputDir, 'wb') as outDir:
 		with open(dictionaryDir, 'wb') as dicDir:
 			None
 	Dic = {}
 
-	indiceVariavel = 5 # 5 eh cidade
-
-	# lista de postings tem tamanho 32, de 0 à 28(cidades!), 29 aponta para o a continuação da lista,
+	# lista de postings tem tamanho 32, de 0 à 28 itens, 29 aponta para o a continuação da lista,
 	# 30 aponta para quem aponta para ele(percorre no sentido reverso), 31 aponta para o índice no
 	# dicionário, se for o que o dicionário está apontando
 	# qualquer campo que não tenha nada, está com -1
@@ -421,7 +421,7 @@ def citiesByUF(inputDir, outputDir, dictionaryDir, index, blockSize, dicBlockSiz
 					while True:
 						inDir.seek(block * size)
 						l = pickle.load(inDir)
-						ID = l[indiceVariavel]
+						ID = l[bodyIndex]
 						data = l[index]
 						# Tem um dado lá que tem três coisas que não dizem nada, achei melhor deixar todos iguais
 						if data == '###!' or data == '####':
