@@ -428,7 +428,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 totalAero += 1
 
                 # ID, Matricula, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
-                # listaIndicesAero = [0, 1,3, 4, 5, 8, 10, 21, 22]
+                #listaIndicesAero = [0, 1, 3, 4, 5, 8, 10, 21, 22]
 
                 # Rank aero
 
@@ -449,8 +449,17 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
                 rowPosition = self.tableResultadosAero.rowCount()
                 self.tableResultadosAero.insertRow(rowPosition)
-                for i, j in enumerate(listaIndicesAero):
+                for i, j in enumerate(listaIndicesAero[:8]):
                     self.tableResultadosAero.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dados[1][j]))
+
+                if len(dados[1][22]) == 1:
+                    self.tableResultadosAero.setItem(rowPosition, i+1, QtWidgets.QTableWidgetItem(("00"+dados[1][22])))
+                elif len(dados[1][22]) == 2:
+                    self.tableResultadosAero.setItem(rowPosition, i+1, QtWidgets.QTableWidgetItem(("0"+ dados[1][22])))
+                else:
+                    self.tableResultadosAero.setItem(rowPosition, i+1, QtWidgets.QTableWidgetItem((dados[1][22])))
+
+
             elif len(dados) > 2:
                 for k in range(1,len(dados)):
 
@@ -471,8 +480,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                         #continua insercao e catalogo
                         totalAero += 1
 
-                        # ID, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
-                        #listaIndicesAero = [0, 3, 4, 5, 8, 10, 21, 22]
+                        # ID, Matricula, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
+                        # listaIndicesAero = [0, 1, 3, 4, 5, 8, 10, 21, 22]
 
                         #Rank aero
 
@@ -494,8 +503,17 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
                         rowPosition = self.tableResultadosAero.rowCount()
                         self.tableResultadosAero.insertRow(rowPosition)
-                        for i, j in enumerate(listaIndicesAero):
+                        for i, j in enumerate(listaIndicesAero[:8]):
                             self.tableResultadosAero.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dados[k][j]))
+
+                        if len(dados[k][22]) == 1:
+                            self.tableResultadosAero.setItem(rowPosition, i+1,
+                                                             QtWidgets.QTableWidgetItem(("00" + dados[k][22])))
+                        elif len(dados[k][22]) == 2:
+                            self.tableResultadosAero.setItem(rowPosition, i+1,
+                                                             QtWidgets.QTableWidgetItem(("0" + dados[k][22])))
+                        else:
+                            self.tableResultadosAero.setItem(rowPosition, i+1, QtWidgets.QTableWidgetItem((dados[k][22])))
             # ignora se nao tem aeronave inscrita
 
 
@@ -521,7 +539,6 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             textao += "\nSem resultados de aeronave.\n"
 
 
-        print(textao)
         self.rankingBox.setPlainText(textao)
 
 
