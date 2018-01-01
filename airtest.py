@@ -7,6 +7,7 @@ import qdarkstyle
 import supportFile
 import mainFunctions
 
+import numpy
 import pickle
 import datetime
 import locale
@@ -256,13 +257,13 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def onBuscarButtonClicked(self):
 
-        l = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:',
+        categorias = ['Classificação:', 'Tipo:', 'Cidade:', 'Estado:', 'Aeródromo:', 'Turno do Dia:', 'Status Investigativo:',
              'Tipo de Veículo:', 'Fabricante:', 'Modelo:', 'Quantidade de Motores:', 'Classe:', 'Dano:',
              'Presença de Fatalidades:']
         l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin',
               'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
               'fatalities.bin']
-        l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
+        dictionaryFiles = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
               'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin',
               'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
 
@@ -298,6 +299,13 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # ID, Classificacao, TipoOco, Cidade, UF, Aerodromo, Dia e Hora, Turno do Dia, Invest Status, # Aeronaves
         listaIndicesOco = [0, 1, 2, 5, 6, 8, "dh", "turno", 12, 17]
 
+        dictionaryFiles = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin',
+                           'dicDayShift.bin',
+                           'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin',
+                           'dicQtyEngine.bin',
+                           'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+        listaIndicesRankOco = [1,2,5,6,8]
+
 
         #da um clear na table anterior
         self.tableResultadosOco.setSortingEnabled(False)  # evita bug esquisito que mantem row vazias se estiver sorted
@@ -305,12 +313,19 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.tableResultadosOco.removeRow(x)
         #self.tableResultadosOco.setRowCount(0)
         IDkeepers = []
+        ranksOco = []
+        sortedOptionsOco = []
+        for dicfile in dictionaryFiles[0:7]:
+            sortedOptionsOco.append(supportFile.returnSorted(dicfile))
+            ranksOco.append([0]*len(sortedOptionsOco[-1]))
+
         for id in IDs:
 
             dados = mainFunctions.getInfoID(id, 'Trie.bin')
 
             date = dados[0][9]
             time = dados[0][10]
+
             #print(date)
             #print(time)
 
@@ -318,24 +333,52 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                                                   datetime.time(int(time.split(":")[0]), int(time.split(":")[1]), int(time.split(":")[2]) ))
             if startdate <= datatempo <= enddate:
                 IDkeepers.append(id)
+
+                dh = date + " " + time
+                horahora = int(time.split(":")[0])
+                if horahora >= 18:
+                    turno = "NOITE"
+                elif horahora >= 12:
+                    turno = "TARDE"
+                elif horahora >= 6:
+                    turno = "MANHÃ"
+                else:
+                    turno = "MADRUGADA"
+
+                # ID, Classificacao, TipoOco, Cidade, UF, Aerodromo, Dia e Hora, Turno do Dia, Invest Status, # Aeronaves
+                #listaIndicesOco = [0, 1, 2, 5, 6, 8, "dh", "turno", 12, 17]
+                #Rankings Oco
+
+                for i in range(5):
+                    for k,item in enumerate(sortedOptionsOco[i]):
+                        if dados[0][ listaIndicesRankOco[i]] == item:
+                            ranksOco[i][k] += 1
+                            break
+
+                for k,item in enumerate(sortedOptionsOco[5]):
+                    if turno == item:
+                        ranksOco[5][k] +=1
+                        break
+
+                for k, item in enumerate(sortedOptionsOco[6]):
+                    if dados[0][ 12 ] == item: # indice Status investig
+                        ranksOco[6][k] += 1
+                        break
+
+
+
+                #rankOcoClassif = [0]*self.dropClassificacao.count()
+                #for i in range()
+                #    if dados[0][1] ==
+
+                #Tabela Oco
                 rowPosition = self.tableResultadosOco.rowCount()
                 self.tableResultadosOco.insertRow(rowPosition)
                 for i, j in enumerate(listaIndicesOco):
                     if j != "dh" and j != "turno":
                         self.tableResultadosOco.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dados[0][j]))
                     elif j == "dh":
-                        dia = dados[0][9]
-                        hora = dados[0][10]
-                        dh = dia + " " + hora
-                        horahora = int(hora.split(":")[0])
-                        if horahora >= 18:
-                            turno = "NOITE"
-                        elif horahora >= 12:
-                            turno = "TARDE"
-                        elif horahora >= 6:
-                            turno = "MANHÃ"
-                        else:
-                            turno = "MADRUGADA"
+
                         self.tableResultadosOco.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dh))
                         i += 1
                         self.tableResultadosOco.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(turno))
@@ -344,7 +387,35 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.tableResultadosOco.setSortingEnabled(True)
         self.tableResultadosOco.sortItems(0, QtCore.Qt.AscendingOrder)
 
+        textao = ""
+        textao += "Dados de Ocorrência:\n\n"
+
+        total = len(IDkeepers)
+
+        if total == 0:
+            textao = "Sem resultados de ocorrência"
+        else:
+
+            for i, catigoria in enumerate(categorias[0:7]):
+                textao += '\n{}:\n'.format(catigoria)
+
+                argindices = numpy.argsort(ranksOco[i])[::-1]
+                if len(argindices) <= 10:
+                    for indice in argindices:
+                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsOco[i][indice]+':').ljust(80), ranksOco[i][indice], ranksOco[i][indice]*100/total)
+                else:
+                    for indice in argindices[:10]:
+                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsOco[i][indice]+':').ljust(80), ranksOco[i][indice], ranksOco[i][indice]*100/total)
+
+
+
         IDs = IDkeepers
+        ranksAero = []
+        sortedOptionsAero = []
+        for dicfile in dictionaryFiles[7:]:
+            sortedOptionsAero.append(supportFile.returnSorted(dicfile))
+            ranksAero.append([0] * len(sortedOptionsAero[-1]))
+
 
         ## TABLE AERONAVES
         # ID, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
@@ -355,23 +426,114 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for x in reversed(range(self.tableResultadosAero.rowCount())):
             self.tableResultadosAero.removeRow(x)
 
+        totalAero = 0
+
+        # self.menuVariablesAero = [self.dropTipoAeronave, self.dropFabricante, self.dropModelo, self.dropQtdMotores, self.dropCategoriaPeso, self.dropDano]
+        #
+
         for id in IDs:
             dados = mainFunctions.getInfoID(id, 'Trie.bin')
             if len(dados) == 2:
+
+                # continua insercao e catalogo
+                totalAero += 1
+
+                # ID, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
+                # listaIndicesAero = [0, 3, 4, 5, 8, 10, 21, 22]
+
+                # Rank aero
+
+                for i in range(6):
+                    for j, item in enumerate(sortedOptionsAero[i]):
+                        if dados[1][listaIndicesAero[i + 1]] == item:
+                            ranksAero[i][j] += 1
+                            break
+
+                # fatalidade sim ou nao
+                for j, item in enumerate(sortedOptionsAero[6]):
+                    if (dados[1][22] not in ['***', '0']) and item == "SIM":
+                        ranksAero[6][j] += 1
+                        break
+                    elif (dados[1][22] in ['***', '0']) and item == "NÃO":
+                        ranksAero[6][j] += 1
+                        break
+
                 rowPosition = self.tableResultadosAero.rowCount()
                 self.tableResultadosAero.insertRow(rowPosition)
                 for i, j in enumerate(listaIndicesAero):
                     self.tableResultadosAero.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dados[1][j]))
             elif len(dados) > 2:
                 for k in range(1,len(dados)):
-                    rowPosition = self.tableResultadosAero.rowCount()
-                    self.tableResultadosAero.insertRow(rowPosition)
-                    for i, j in enumerate(listaIndicesAero):
-                        self.tableResultadosAero.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dados[k][j]))
+
+                    itemOk = True
+                    for i, v in enumerate(self.menuVariablesAero):
+
+                        if v.currentText().upper() not in ["QUALQUER"]:
+                            if dados[k][listaIndicesAero[i+1]] != v.currentText().upper():
+                                itemOk = False
+                                break
+
+                    if self.butgroupFatalidades.checkedButton().text().upper() != "QUALQUER":
+                        if dados[k][22] != self.butgroupFatalidades.checkedButton().text().upper():
+                            itemOk = False
+
+                    if itemOk:
+
+                        #continua insercao e catalogo
+                        totalAero += 1
+
+                        # ID, TipoAero, Fabricante, Modelo, Qtd Motores, Classe, Dano, Fatalidades
+                        #listaIndicesAero = [0, 3, 4, 5, 8, 10, 21, 22]
+
+                        #Rank aero
+
+                        for i in range(6):
+                            for j, item in enumerate(sortedOptionsAero[i]):
+                                if dados[k][listaIndicesAero[i+1]] == item:
+                                    ranksAero[i][j] += 1
+                                    break
+
+                        # fatalidade sim ou nao
+                        for j, item in enumerate(sortedOptionsAero[6]):
+                            if (dados[k][22] not in ['***', '0']) and item == "SIM":
+                                ranksAero[6][j] += 1
+                                break
+                            elif (dados[k][22] in ['***', '0']) and item == "NÃO":
+                                ranksAero[6][j] += 1
+                                break
+
+
+                        rowPosition = self.tableResultadosAero.rowCount()
+                        self.tableResultadosAero.insertRow(rowPosition)
+                        for i, j in enumerate(listaIndicesAero):
+                            self.tableResultadosAero.setItem(rowPosition, i, QtWidgets.QTableWidgetItem(dados[k][j]))
             # ignora se nao tem aeronave inscrita
+
 
         self.tableResultadosAero.setSortingEnabled(True)
         self.tableResultadosAero.sortItems(0, QtCore.Qt.AscendingOrder)
+
+        if totalAero > 0:
+
+            textao += "\n\nDados de Aeronaves:\n"
+            for i, catigoria in enumerate(categorias[7:]):
+                textao += '\n{}:\n'.format(catigoria)
+
+                argindices = numpy.argsort(ranksAero[i])[::-1]
+
+                if len(argindices) <= 10:
+                    for indice in argindices:
+                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsAero[i][indice]+':').ljust(80), ranksAero[i][indice], ranksAero[i][indice]*100/totalAero)
+                else:
+                    for indice in argindices[:10]:
+                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsAero[i][indice]+':').ljust(80), ranksAero[i][indice], ranksAero[i][indice]*100/totalAero)
+
+        else:
+            textao += "\nSem resultados de aeronave.\n"
+
+
+        print(textao)
+        self.rankingBox.setPlainText(textao)
 
 
 
