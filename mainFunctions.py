@@ -122,6 +122,42 @@ def addData(ocoList, anvList, treeFile):
         for i in range(7, len(l1)):
             supportFile.addID(l2[i], l1[i], anv[l3[i]], anv[0])
 
+def addOcoData(ocoList, treeFile):
+    Tree = Trie.Trie(2000)
+    a = Tree.findID(ocoList[0], treeFile)
+    if (a != -1):  # can't add an existing ID
+        return -1
+    pos = supportFile.addInMainFile(ocoList, 'oco.bin')
+    Tree.addID(ocoList[0], pos, treeFile)
+    for anv in anvList:
+        pos = supportFile.addInMainFile(anv, 'anv.bin')
+        Tree.updateID(anv[0], None, pos, None, treeFile, 0)  # append
+    l1 = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin',
+          'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin', 'fatalities.bin']
+    l2 = ['dicClassification.bin', 'dicType.bin', 'dicCity.bin', 'dicUF.bin', 'dicAerodrome.bin', 'dicDayShift.bin',
+          'dicInvStatus.bin', 'dicVeicType.bin', 'dicManufacturer.bin', 'dicModel.bin', 'dicQtyEngine.bin',
+          'dicClass.bin', 'dicHarm.bin', 'dicFatalities.bin']
+    l3 = [1, 2, 5, 6, 8, 10, 12, 3, 4, 5, 8, 10, 21, 22]
+    if ocoList[10][:2].isdigit():
+        hour = int(ocoList[10][:2])
+        ocoList[10] = 'NOITE'
+        if (hour < 6):
+            ocoList[10] = 'MADRUGADA'
+        elif (hour < 12):
+            ocoList[10] = 'MANHÃ'
+        elif (hour < 18):
+            ocoList[10] = 'TARDE'
+    for i in range(7):
+        supportFile.addID(l2[i], l1[i], ocoList[l3[i]], ocoList[0])
+    for anv in anvList:
+        if anv[22].isdigit():
+            if anv[22] == '0':
+                anv[22] = 'NÃO'
+            else:
+                anv[22] = 'SIM'
+        for i in range(7, len(l1)):
+            supportFile.addID(l2[i], l1[i], anv[l3[i]], anv[0])
+
 
 def updateList(l, infoFile):
     info = []
@@ -188,12 +224,12 @@ def updateOco(ID, treeFile):
 
 
 def updateOcoWithDataString(ID, treeFile, ocoList):
+
     Tree = Trie.Trie(2000)
     a = Tree.findID(ID, treeFile)
     if (a == -1):
         return -1
     d = []
-    ocoList = []
     with open('oco.bin', 'r+b') as f:
         size = pickle.load(f)
         f.seek(a.getOco() * size)

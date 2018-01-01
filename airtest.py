@@ -649,8 +649,9 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             if yn == QtWidgets.QMessageBox.No:
                 pass
             else:
-                self.novoregistro = self.novaStringOcorrencia()
-                mainFunctions.updateOcoWithDataString(id,'Trie.bin', self.novoregistro)
+                self.dadosOcoLista, self.dadosOcoStringFinal = self.novaStringOcorrencia()
+
+                mainFunctions.updateOcoWithDataString(id,'Trie.bin', self.dadosOcoLista)
 
         else: # nao existe essa ID; fazer uma nova sem perguntas
             registro = self.novaStringOcorrencia()
@@ -662,7 +663,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # Mandou registrar os dados em Aeronave
         # Checar se ID e Matricula de Aeronave ja existem nos registros
         id = self.tae0CodOco.displayText()
-        matr = self.tae1Matricula.displayText()
+        matr = self.tae1Matricula.displayText().upper()
         dados = mainFunctions.getInfoID(id, 'Trie.bin')
 
         if id == "":
@@ -701,8 +702,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 if yn == QtWidgets.QMessageBox.No:
                     pass
                 else:
-                    self.novoRegistro = self.novaStringAeronave()
-                    mainFunctions.updateAnvWithDataString(id, matr, 'Trie.bin', self.novoRegistro)
+                    self.dadosAeroLista, self.dadosAeroStringFinal = self.novaStringAeronave()
+                    mainFunctions.updateAnvWithDataString(id, matr, 'Trie.bin', self.dadosAeroLista)
 
             else: #nao achou esta aeronave registrada para este ID. Inserir sem perguntas
                 registro = self.novaStringAeronave()
@@ -786,12 +787,9 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
             stringElements.append('NÃO')
 
         stringElements.append(str(QtCore.QDate.currentDate().toPyDate()))
-
         stringFinal = sep.join(stringElements)
 
-        print(stringFinal)
-
-        return(stringFinal)
+        return( stringElements, stringFinal)
 
         # codigo_ocorrencia"~"ocorrencia_classificacao"~"ocorrencia_tipo"~"ocorrencia_latitude"~"ocorrencia_longitude"~
         # "ocorrencia_cidade"~"ocorrencia_uf"~"ocorrencia_pais"~"ocorrencia_aerodromo"~"ocorrencia_dia"~"ocorrencia_horario"~
@@ -836,8 +834,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         stringElements.append(str(QtCore.QDate.currentDate().toPyDate()))
 
         stringFinal = sep.join(stringElements)
-        print(stringFinal)
-        return (stringFinal)
+        return (stringElements, stringFinal)
 
         #codigo_ocorrencia"~"aeronave_matricula"~"aeronave_operador_categoria"~"aeronave_tipo_veiculo"~
         # "aeronave_fabricante"~"aeronave_modelo"~"aeronave_tipo_icao"~"aeronave_motor_tipo"~
