@@ -44,18 +44,6 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.initializeInsereRemoveTab()
 
-        lista1 = supportFile.getIDs('dicModelsByManufacturer.bin', 'modelsByManufacturer.bin', "EMBRAER")
-        print("EMBRAER", lista1)
-        lista2 = supportFile.getIDs('dicModelsByManufacturer.bin', 'modelsByManufacturer.bin', "CESSNA")
-        print("CESSNA", lista2)
-
-        lista1s = sorted(lista1, key=locale.strxfrm)
-        print("EMBRAER sorted", lista1s)
-        lista2s = sorted(lista2, key=locale.strxfrm)
-        print("CESSNA sorted", lista2s)
-
-        print("Consertar: pegando modelos de outras marcas why")
-
         lll = ['classification.bin', 'type.bin', 'city.bin', 'UF.bin', 'aerodrome.bin', 'dayShift.bin', 'invStatus.bin',
          'veicType.bin', 'manufacturer.bin', 'model.bin', 'qtyEngine.bin', 'class.bin', 'harm.bin',
          'fatalities.bin']
@@ -75,21 +63,21 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.dropClassificacao.addItems(supportFile.returnSorted('dicClassification.bin'))
 
         listaTurnoDia = supportFile.returnSorted('dicDayShift.bin')
-        turnos = ["MADRUGADA", "MANHÃ", "TARDE", "NOITE"] #garante a ordem intuitiva dos turnos (caso nao tenha todos)
-        listaTurnoDia = sorted(listaTurnoDia, key=lambda x: turnos.index(x))
+        turnos = {"MADRUGADA":0, "MANHÃ":1, "TARDE":2, "NOITE":3} #garante a ordem intuitiva dos turnos (caso nao tenha todos)
+        listaTurnoDia = sorted(listaTurnoDia, key=lambda x: (x not in turnos, turnos.get(x), None))
         self.dropTurno.addItems(listaTurnoDia)
 
         listaCatPesos = supportFile.returnSorted('dicClass.bin')
-        pesos = ["***", "LEVE", "MÉDIA", "MÉDIO", "PESADA", "PESADO"]  # garante a ordem intuitiva
-        listaCatPesos = sorted(listaCatPesos, key=lambda x: pesos.index(x))
+        pesos = {"***":0, "LEVE":1, "MÉDIA":2, "MÉDIO":3, "PESADA":4, "PESADO":5}  # garante a ordem intuitiva
+        listaCatPesos = sorted(listaCatPesos, key=lambda x: (x not in pesos, pesos.get(x), None))
         self.dropCategoriaPeso.addItems(listaCatPesos)
 
         listaTipoAero = supportFile.returnSorted('dicVeicType.bin')
         self.dropTipoAeronave.addItems(listaTipoAero)
 
         listaDano = supportFile.returnSorted('dicHarm.bin')
-        damages = ["***", "NENHUM", "LEVE", "SUBSTANCIAL", "DESTRUÍDA", "DESTRUÍDO"]
-        listaDano = sorted(listaDano, key=lambda x: damages.index(x))
+        damages = {"***":0, "NENHUM":1, "LEVE":2, "SUBSTANCIAL":3, "DESTRUÍDA":4, "DESTRUÍDO":5}
+        listaDano = sorted(listaDano, key=lambda x: (x not in damages, damages.get(x), None))
         self.dropDano.addItems(listaDano)
 
 
@@ -98,9 +86,10 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         #self.dropAerodromo.addItems(listaAerodromo)
 
         listaQtdMotores = supportFile.returnSorted('dicQtyEngine.bin')
-        motors = ["***", "SEM TRAÇÃO", "MONOMOTOR", "BIMOTOR", "TRIMOTOR", "QUADRIMOTOR"]  # garante a ordem intuitiva
-        listaQtdMotores = sorted(listaQtdMotores, key=lambda x: motors.index(x))
+        motors = {"***":0, "SEM TRAÇÃO":1, "MONOMOTOR":2, "BIMOTOR":3, "TRIMOTOR":4, "QUADRIMOTOR":5}  # garante a ordem intuitiva
+        listaQtdMotores = sorted(listaQtdMotores, key=lambda x: (x not in motors, motors.get(x), None))
         self.dropQtdMotores.addItems(listaQtdMotores)
+
 
         listaUF = supportFile.returnSorted('dicUF.bin')
         self.dropEstado.clear()
