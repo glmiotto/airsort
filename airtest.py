@@ -1118,7 +1118,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def aboutWindow(self):
         msg = QtWidgets.QMessageBox()
-        msg.setIconPix(QtWidgets.QMessageBox.Information)
+        msg.setIcon(QtWidgets.QMessageBox.Information)
 
         msg.setWindowTitle("Sobre airsort")
         msg.setText("airsort, Inc. 2017-2018\nInstituto de Informatica, UFRGS\n")
