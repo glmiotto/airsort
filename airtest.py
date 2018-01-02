@@ -29,8 +29,8 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
-        self.setWindowTitle("AirSort - O Sort Amigo")
-        self.setWindowIcon(QtGui.QIcon('doggo.png'))
+        self.setWindowTitle("Airsort")
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         self.textRegAero = [self.tae0CodOco, self.tae1Matricula, self.tae2CategOperador,
                             self.tae3TipoAero, self.tae4Fabricante, self.tae5Modelo, self.tae6TipoICAO,
@@ -154,6 +154,17 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         model = self.tableResultadosOco.model()
         data = []
         headers = []
+
+        if model.rowCount() == 0:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+
+            msg.setWindowTitle("Tabela de resultados vazia")
+            msg.setText("Não há resultados para salvar. Faça outra busca.")
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+            msg.exec()
+            return
 
         for column in range(model.columnCount()):
             headers.append(str(model.headerData(column,QtCore.Qt.Horizontal)))
@@ -1107,15 +1118,13 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def aboutWindow(self):
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setIconPix(QtWidgets.QMessageBox.Information)
 
         msg.setWindowTitle("Sobre airsort")
         msg.setText("airsort, Inc. 2017-2018\nInstituto de Informatica, UFRGS\n")
-        msg.setInformativeText("Arthur Balbao\nGiovane Fonseca\nGiovanna Miotto")
+        msg.setInformativeText("Developed by Arthur Endres Balbao, Giovane Alves Fonseca & Giovanna Lazzari Miotto.")
 
-        #msg.setDetailedText("Arthur Balbao\nGiovane Fonseca\nGiovanna Miotto")
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        # msg.buttonClicked.connect(msgbtn)
 
         msg.exec()
 
