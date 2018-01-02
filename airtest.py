@@ -8,6 +8,7 @@ import supportFile
 import mainFunctions
 
 import numpy
+import csv
 import pickle
 import datetime
 import locale
@@ -122,10 +123,12 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # Bind ações de menu (Sair/Exit e Sobre/About)
         self.actionSair.triggered.connect(self.shutDown)
         self.actionSobre.triggered.connect(self.aboutWindow)
+        self.actionSalvarResultados.triggered.connect(self.saveCurrentResults)
 
         # Bind os botoes de Limpar dados de busca e Buscar com dados atuais
         self.limparButton.clicked.connect(self.onLimparButtonClicked)
         self.buscarButton.clicked.connect(self.onBuscarButtonClicked)
+
 
         # Bind as duas tabelas ao doubleclick para abrir raw data
         self.tableResultadosOco.itemDoubleClicked.connect(self.onResultDoubleClick)
@@ -134,6 +137,70 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # Bind a troca de data e hora de começo do período (From) à data e hora mínimas
         # que poderão ser escolhidas no calendário de fim do período (To)
         self.dateTimeFrom.dateTimeChanged.connect(self.onDTFromChanged)
+
+
+    def saveCurrentResults(self):
+
+        now = (str(QtCore.QDate.currentDate().toPyDate())).replace(" ","_").replace("-","")
+
+        now += "-"+str(QtCore.QDateTime.currentDateTime().secsTo(QtCore.QDateTime(
+                        QtCore.QDate.currentDate().addDays(1), QtCore.QTime(0,0))))
+
+        nameOco = "resultadosOcorrencias_" + now + ".csv"
+        nameAero = "resultadosAeronaves_" + now+ ".csv"
+        nameRank = "resultadosAnalise_" + now+ ".txt"
+
+
+        model = self.tableResultadosOco.model()
+        data = []
+        headers = []
+
+        for column in range(model.columnCount()):
+            headers.append(str(model.headerData(column,QtCore.Qt.Horizontal)))
+        for row in range(model.rowCount()):
+            data.append([])
+            for column in range(model.columnCount()):
+                index = model.index(row, column)
+                data[row].append(str(model.data(index)))
+
+        data.insert(0,headers)
+        with open(nameOco, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(data)
+
+        model = self.tableResultadosAero.model()
+        data = []
+        headers = []
+        for column in range(model.columnCount()):
+            headers.append(str(model.headerData(column,QtCore.Qt.Horizontal)))
+        for row in range(model.rowCount()):
+            data.append([])
+            for column in range(model.columnCount()):
+                index = model.index(row, column)
+                data[row].append(str(model.data(index)))
+
+        data.insert(0,headers)
+        with open(nameAero, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(data)
+
+        data = self.rankingBox.toPlainText()
+
+        with open(nameRank, "w") as f:
+            f.write(data)
+
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+
+        msg.setWindowTitle("Resultados salvos")
+        msg.setText("Resultados de ocorrência, aeronave e análise\n"
+                    "salvos com sucesso nos arquivos:\n"
+                    "{}\n{}\n{}".format(nameOco, nameAero, nameRank))
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+
+        msg.exec()
+        return
+
 
 
 
@@ -166,6 +233,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.rawWindow = QtWidgets.QTextEdit()
         self.rawWindow.setReadOnly(True)
+        self.rawWindow.setFont(QtGui.QFont("Consolas", 10))
         self.rawWindow.setPlainText(textOco+textAero)
         self.rawWindow.setWindowTitle('\nOcorrência ID {} (raw data)\n'.format(id))
         self.rawWindow.setFixedWidth(500)
@@ -377,7 +445,7 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.tableResultadosOco.sortItems(0, QtCore.Qt.AscendingOrder)
 
         textao = ""
-        textao += "Dados de Ocorrência:\n\n"
+        textao += "Dados de Ocorrência:\n"
 
         total = len(IDkeepers)
 
@@ -386,15 +454,15 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         else:
 
             for i, catigoria in enumerate(categorias[0:7]):
-                textao += '\n{}:\n'.format(catigoria)
+                textao += '\n{}\n'.format(catigoria)
 
                 argindices = numpy.argsort(ranksOco[i])[::-1]
                 if len(argindices) <= 10:
                     for indice in argindices:
-                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsOco[i][indice]+':').ljust(80), ranksOco[i][indice], ranksOco[i][indice]*100/total)
+                        textao += '  {} {} ({:.2f}%)\n'.format((sortedOptionsOco[i][indice]+':').ljust(60), ranksOco[i][indice], ranksOco[i][indice]*100/total)
                 else:
                     for indice in argindices[:10]:
-                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsOco[i][indice]+':').ljust(80), ranksOco[i][indice], ranksOco[i][indice]*100/total)
+                        textao += '  {} {} ({:.2f}%)\n'.format((sortedOptionsOco[i][indice]+':').ljust(60), ranksOco[i][indice], ranksOco[i][indice]*100/total)
 
 
 
@@ -524,16 +592,16 @@ class MainWIndow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
             textao += "\n\nDados de Aeronaves:\n"
             for i, catigoria in enumerate(categorias[7:]):
-                textao += '\n{}:\n'.format(catigoria)
+                textao += '\n{}\n'.format(catigoria)
 
                 argindices = numpy.argsort(ranksAero[i])[::-1]
 
                 if len(argindices) <= 10:
                     for indice in argindices:
-                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsAero[i][indice]+':').ljust(80), ranksAero[i][indice], ranksAero[i][indice]*100/totalAero)
+                        textao += '  {} {} ({:.2f}%)\n'.format((sortedOptionsAero[i][indice]+':').ljust(60), ranksAero[i][indice], ranksAero[i][indice]*100/totalAero)
                 else:
                     for indice in argindices[:10]:
-                        textao += '{} {} ({:.2f}%)\n'.format((sortedOptionsAero[i][indice]+':').ljust(80), ranksAero[i][indice], ranksAero[i][indice]*100/totalAero)
+                        textao += '  {} {} ({:.2f}%)\n'.format((sortedOptionsAero[i][indice]+':').ljust(60), ranksAero[i][indice], ranksAero[i][indice]*100/totalAero)
 
         else:
             textao += "\nSem resultados de aeronave.\n"
