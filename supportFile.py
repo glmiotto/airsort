@@ -18,7 +18,8 @@ def printall(file):
 				i += 1
 	except:
 		return
-	
+
+# coloca todos dados do dicionário, ordena em ordem crescente e imprime
 def showSorted(dicFile):
 	try:
 		l = []
@@ -36,6 +37,7 @@ def showSorted(dicFile):
 			print(item)
 		return
 
+# coloca todos dados do dicionário, ordena em ordem crescente e retorna a lista
 def returnSorted(dicFile):
 	try:
 		l = []
@@ -100,7 +102,7 @@ def getIDs(dicFile, dataFile, data):
 				while True:
 					dic.seek(size*i)
 					l = pickle.load(dic)
-					if(l[0] == data):
+					if(l[0] == data): # pega todos os ID's que estão nesse dicionário
 						i = l[1]
 						f.seek(fsize*i)
 						l = pickle.load(f)
@@ -112,7 +114,7 @@ def getIDs(dicFile, dataFile, data):
 							IDs = IDs.union(set(l[:29]))
 						if -1 in IDs:
 							IDs.remove(-1)
-						return IDs				
+						return IDs	# retorna todos ID's desse filtro
 					i += 1
 	except:
 		return set()
@@ -176,7 +178,7 @@ def addID(dicFile, dataFile, data, ID):
 					bytesToAdd = size - len(pickle.dumps([data, new, 1]))
 					pickle.dump([data, new, 1], dic)
 					dic.write(bytearray(bytesToAdd))
-					if data == '***':
+					if data == '***': # se o valor for desconhecido, acrescenta ele no dicionário e armazena sua localização no último bloco
 						neutralValue = newD
 					bytesToAdd = size - len(pickle.dumps(neutralValue))
 					pickle.dump(neutralValue, dic)
@@ -197,37 +199,37 @@ def removeID(dicFile, dataFile, data, ID):
 					if(l[0] == data):
 						dic.seek(size*i)
 						j = l[1]
-						if(l[2] > 1):
+						if(l[2] > 1): # diminui um no tamanho do dicionário
 							l[2] -= 1
 							pickle.dump(l, dic)
-						else:
+						else: # se vai zerar, então tira ele do dicionário
 							dic.seek(-(2*size), 2)
 							indexDic = dic.tell()//size
 							#print(ID)
-							if(indexDic != i):
+							if(indexDic != i): # se ele não é o último, então coloca o último na posição vaga
 								new = pickle.load(dic)
 								dic.seek(size*i)
 								pickle.dump(new, dic)
 							dic.seek(-size, 2)
 							val = pickle.load(dic)
 							dic.seek(-(2*size), 2)
-							if(val == i):
+							if(val == i): # se o campo neutro, foi removido
 								val = -1
-							elif(val == indexDic):
+							elif(val == indexDic): # se o campo neutro foi deslocado
 								val = i
 							#print(val)
-							pickle.dump(val, dic)
+							pickle.dump(val, dic) # coloca o indíce do campo neutro para cima
 							dic.seek(-size, 2)
 							dic.truncate()
 						fsize = pickle.load(f)
 						f.seek(fsize*j)
 						l = pickle.load(f)
-						while(ID not in l[:29]):
+						while(ID not in l[:29]): # encontrar ID na lista de postings
 							j = l[29]
 							f.seek(fsize*j)
 							l = pickle.load(f)
 						indexID = l.index(ID)
-						if indexID == 0 and l[indexID+1] == -1:
+						if indexID == 0 and l[indexID+1] == -1: # se a lista contém, um único ID, então pode removê-la
 							if(l[30] != -1): # não apontar para lista removida
 								f.seek(l[30]*fsize)
 								pointer = pickle.load(f)
@@ -238,32 +240,32 @@ def removeID(dicFile, dataFile, data, ID):
 							new = pickle.load(f)
 							f.seek(-fsize, 2)
 							f.truncate()
-							if(new[30] != -1):
+							if(new[30] != -1): # atualizar a lista que aponta para essa nova lista que mudou de lugar, se tiver
 								f.seek(new[30]*fsize)
 								toUpdate = pickle.load(f)
 								toUpdate[29] = j
 								f.seek(new[30]*fsize)
 								pickle.dump(toUpdate, f)
-							if(new[31] != -1):
+							if(new[31] != -1): # atualizar o campo do dicionário que aponta para o ínicio da lista, se for o primeiro
 								dic.seek(new[31]*size)
 								b = pickle.load(dic)
 								dic.seek(new[31]*size)
 								b[1] = j
 								pickle.dump(b, dic)
 							#print(j)
-							f.seek(j*fsize)
+							f.seek(j*fsize) # coloca o último nesse lugar
 							#print(new)
 							pickle.dump(new, f)
 							return 
 						else:
-							if l[29] == -1:
+							if l[29] == -1: # se a lista não tem mais segmento, então troca o ID com o último e seta o último para -1(não existe)
 								last = l.index(-1)-1
 								l[indexID] = l[last]
 								l[last] = -1
 								f.seek(j*fsize)
 								pickle.dump(l, f)
 								return
-							else:
+							else: # senão, busca o último da lista, e coloca no lugar do ID removido
 								a = copy.deepcopy(l)
 								newj = a[29]
 								while(a[29] != -1):
@@ -271,7 +273,7 @@ def removeID(dicFile, dataFile, data, ID):
 									f.seek(fsize*newj)
 									a = pickle.load(f)
 								last = a.index(-1)-1
-								if last > 0:
+								if last > 0: # se a lista não foi removida por completo, então apenas coloca o último na posição do ID removido
 									l[indexID] = a[last]
 									a[last] = -1
 									f.seek(newj*fsize)
@@ -279,7 +281,7 @@ def removeID(dicFile, dataFile, data, ID):
 									f.seek(j*fsize)
 									pickle.dump(l, f)
 									return 
-								else:
+								else: # se a última lista vai ser removida
 									l[indexID] = a[last]
 									f.seek(j*fsize)
 									pickle.dump(l, f)
@@ -293,15 +295,15 @@ def removeID(dicFile, dataFile, data, ID):
 									a = pickle.load(f)
 									f.seek(-fsize, 2)
 									f.truncate()
-									f.seek(newj*fsize)
+									f.seek(newj*fsize) # coloca o último na posição da lista removida
 									pickle.dump(a, f)
-									if a[30] != -1:
+									if a[30] != -1: # atualiza quem aponta para lista movida
 										f.seek(a[30]*fsize)
 										b = pickle.load(f)
 										f.seek(a[30]*fsize)
 										b[29] = newj
 										pickle.dump(b, f)
-									elif a[31] != -1:
+									elif a[31] != -1: # atualiza o dicionário para a lista movida, se for a primeira
 										dic.seek(a[31]*size)
 										b = pickle.load(dic)
 										dic.seek(a[31]*size)
@@ -312,6 +314,7 @@ def removeID(dicFile, dataFile, data, ID):
 	except:
 		return
 
+# adicionar ocorrência ou aeronave, apenas adiciona no final do arquivo
 def addInMainFile(l, file):
 	try:
 		with open(file, 'r+b') as f:
@@ -325,6 +328,7 @@ def addInMainFile(l, file):
 	except:
 		return -1
 
+# remover ocorrência ou aeronave, apenas troca o último com o removido
 def removeInMainFile(index, file):
 	try:
 		with open(file, 'r+b') as f:

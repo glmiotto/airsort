@@ -67,18 +67,18 @@ class Trie:
 					else: # adicionar novo caminho
 						f.seek(0, 2)
 						newPos = f.tell()//size # new node's position in file
-						new = TrieNode()
-						new.setParent(pos, number)
+						new = TrieNode() # cria o nó
+						new.setParent(pos, number) # atualiza o pai
 						bytesToAdd = size - len(pickle.dumps(new))
-						pickle.dump(new, f)
+						pickle.dump(new, f) # coloca no final do arquivo da Trie
 						f.write(bytearray(bytesToAdd))
 						f.seek(pos*size)
-						curNode.setChild(number, newPos)
+						curNode.setChild(number, newPos) # atualiza o ponteiro do pai do filho recém criado
 						pickle.dump(curNode, f)
 						curNode = new
 						pos = newPos
 				f.seek(pos*size)
-				curNode.setOco(oco)
+				curNode.setOco(oco) # atualiza a posição do arquivo de ocorrência, para acesso imediato
 				pickle.dump(curNode, f)
 		except:
 			return -1
@@ -94,7 +94,7 @@ class Trie:
 				pos = 1
 				f.seek(pos*size)
 				curNode = pickle.load(f) # root
-				for letter in ID:
+				for letter in ID: # encontra ID
 					number = int(letter)
 					childPos = curNode.getChild(number)
 					if childPos == None: # ID doesn't exists
@@ -102,7 +102,7 @@ class Trie:
 					f.seek(childPos*size)
 					curNode = pickle.load(f)
 					pos = childPos
-				f.seek(pos*size)
+				f.seek(pos*size) # atualiza conforme explicado no comentário acima da função
 				if(oco != None):
 					curNode.setOco(oco)
 				if infoAnv == 0:
@@ -125,23 +125,23 @@ class Trie:
 				pos = 1
 				f.seek(pos*size)
 				curNode = pickle.load(f) # root
-				for letter in ID:
+				for letter in ID: # busca ID
 					number = int(letter)
 					childPos = curNode.getChild(number)
 					#print(childPos)
-					if childPos == None:
+					if childPos == None: # retorna -1 se não encontrar
 						return -1
 					f.seek(childPos*size)
 					curNode = pickle.load(f)
 					pos = childPos
-				if(curNode.getOco() != -1):
+				if(curNode.getOco() != -1): # retorna o nodo
 					return curNode
-				else:
+				else: # retorna -1 se não encontrar
 					return -1
 		except:
 			return -1
 			
-	def filterIDRec(self, curNode, IDs, ID, f, size): 
+	def filterIDRec(self, curNode, IDs, ID, f, size): # filtra ID
 		if curNode != None:
 			if curNode.getOco() != -1:
 				IDs.add(ID)
@@ -153,13 +153,13 @@ class Trie:
 				nextNode = pickle.load(f)
 				self.filterIDRec(nextNode, IDs, ID + str(i), f, size)
 				
-	def filterID(self, ID, file): # filter ID traversing Trie in a file
+	def filterID(self, ID, file): # filter ID traversing Trie in a file given prefix ID
 		try:
 			with open(file, 'rb') as f:
 				size = pickle.load(f)
 				f.seek(1*size)
 				curNode = pickle.load(f) # root
-				for letter in ID:
+				for letter in ID: # traverse Prefix
 					number = int(letter)
 					childPos = curNode.getChild(number)
 					if childPos == None:
@@ -167,7 +167,7 @@ class Trie:
 					f.seek(childPos*size)
 					curNode = pickle.load(f)
 				IDs = set()
-				self.filterIDRec(curNode, IDs, ID, f, size)
+				self.filterIDRec(curNode, IDs, ID, f, size) # get all ID's that exists in this subtree
 				return IDs
 		except:
 			return set()
@@ -201,19 +201,19 @@ class Trie:
 					f.seek(parentInfo[0]*size)
 					parent = pickle.load(f)
 					f.seek(parentInfo[0]*size)
-					parent.setChild(parentInfo[1], None)
+					parent.setChild(parentInfo[1], None) # atualiza o pai para não apontar para o filho removido
 					pickle.dump(parent, f)
-					curNode = parent
+					curNode = parent # atualiza curNode
 					newPos = parentInfo[0]
 					f.seek(-size, 2) # colocar o último na posição do que foi removido
 					indexLast = f.tell()//size
-					if(indexLast != pos):
+					if(indexLast != pos): # se o último é diferente do que está sendo removido
 						last = pickle.load(f)
 						f.seek(-size, 2)
 						f.truncate()
 						f.seek(size*pos) # posição para colocar o que era o último
 						pickle.dump(last, f)
-						for i in range(10):
+						for i in range(10): # atualiza os filhos para apontar para o pai que foi movido
 							if last.getChild(i) != None:
 								f.seek(last.getChild(i)*size)
 								child = pickle.load(f)
@@ -221,14 +221,14 @@ class Trie:
 								par = child.getParent()
 								child.setParent(pos, par[1])
 								pickle.dump(child, f)
-						parentInfo = last.getParent()
+						parentInfo = last.getParent() # atualiza o pai para apontar para o nodo movido
 						f.seek(parentInfo[0]*size)
 						parent = pickle.load(f)
 						f.seek(parentInfo[0]*size)
 						parent.setChild(parentInfo[1], pos)
 						pickle.dump(parent, f)
 						pos = newPos
-					else:
+					else: # se o último foi removido, então apenas atualiza a posição que agora é o pai do nodo removido
 						f.truncate()
 						pos = newPos
 				return nodeToRemove
@@ -253,10 +253,10 @@ class Trie:
 			self.inOrderRec(root, '', f, size)
 			
 
-def buildTrie():
+def buildTrie(): # contrói a Trie
 	Tree = Trie(2000)
 	try:
-		with open('oco.bin', 'rb') as f:
+		with open('oco.bin', 'rb') as f: # colocando as oco's
 			size = pickle.load(f)
 			i = 1
 			while True:
@@ -267,7 +267,7 @@ def buildTrie():
 	except:
 		None
 	try:
-		with open('anv.bin', 'rb') as f:
+		with open('anv.bin', 'rb') as f: # dando update na anv list do nodo
 			size = pickle.load(f)
 			i = 1
 			while True:

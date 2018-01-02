@@ -1,5 +1,8 @@
 import pickle
 
+# cria os arquivos principais em binário, onde cada lista tem tamanho blockSize
+# contém todas as informações sobre a ocorrência ou aeronave
+
 def createMainFiles(inputDir, infoDir, outputDir, blockSize):
 	with open(outputDir, 'wb') as f: 
 		with open(inputDir, 'r', encoding='utf-8') as oco:
@@ -74,7 +77,7 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 							PostingList[current][curIndex[current]] = ID
 							curIndex[current] += 1
 						else:
-							if(toUpdate[current] != -1): # se tem algum que está apontando, atualiza a posição 29 dele
+							if(toUpdate[current] != -1): # se tem algum que está apontando, atualiza a posição 29 (continuação da lista)
 								PostingList[current][30] = toUpdate[current]
 								outDir.seek(toUpdate[current]*blockSize)
 								r = pickle.load(outDir)
@@ -82,7 +85,7 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 								r[29] = fileIndex
 								pickle.dump(r, outDir)
 								outDir.seek(0, 2) # end of file
-							else: # senão, ele é o primeiro e adiciona no dicionário, atualiza posição 31
+							else: # senão, ele é o primeiro e adiciona no dicionário, atualiza posição 31 (localização dele dentro do arquivo de dicionário)
 								PostingList[current][31] = fileDicIndex
 								bytesToAdd = dicBlockSize - len(pickle.dumps([data, fileIndex]))
 								pickle.dump([data, fileIndex], dicDir)
@@ -93,6 +96,7 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 							pickle.dump(PostingList[current], outDir)
 							outDir.write(bytearray(bytesToAdd))
 							toUpdate[current] = fileIndex
+							# atualização para o próximo bloco
 							PostingList[current] = [ID]+[-1]*31
 							curIndex[current] = 1
 							fileIndex += 1
@@ -145,7 +149,7 @@ def createInvertedIndexFile(inputDir, outputDir, dictionaryDir, index, blockSize
 						pickle.dump(numberUnknow, dicDir)
 						dicDir.write(bytearray(bytesToAdd))
 
-# quase = createInvertedIndexFile
+# quase = createInvertedIndexFile (só muda que decide se é Noite, Madrugada, Tarde ou Manhã)
 						
 def dayShiftFile(index, blockSize, dicBlockSize):
 	with open('dayShift.bin', 'wb') as outDir:
@@ -255,7 +259,7 @@ def dayShiftFile(index, blockSize, dicBlockSize):
 						pickle.dump(-1, dicDir)
 						dicDir.write(bytearray(bytesToAdd))
 
-# quase = createInvertedIndexFile
+# quase = createInvertedIndexFile (Sim ou Não)
 						
 def fatalitiesFile(index, blockSize, dicBlockSize):
 	with open('fatalities.bin', 'wb') as outDir:
@@ -361,7 +365,7 @@ def fatalitiesFile(index, blockSize, dicBlockSize):
 						pickle.dump(-1, dicDir)
 						dicDir.write(bytearray(bytesToAdd))
 
-# cria todos arquivos invertidos						
+# cria todos arquivos invertidos e arquivos principais					
 
 def createFiles():
 	createMainFiles('oco.csv', 'infoOco.bin', 'oco.bin', 500)
